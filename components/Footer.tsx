@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Visa, Mastercard, Amex } from 'react-svg-credit-card-payment-icons';
+// import { Visa, Mastercard, Amex } from 'react-svg-credit-card-payment-icons';
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from "lucide-react";
-
+import { FaCcVisa, FaCcMastercard, FaCcAmex } from "react-icons/fa";
 const Footer = () => {
     return (
         <footer className="bg-white border-t border-gray-100 pt-20 pb-10">
@@ -141,14 +141,13 @@ const Footer = () => {
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-6 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-                        {/* Payment Icons */}
-                        <div className="flex gap-4 items-center">
-                            <Visa width={40} />
-                            <Mastercard width={40} />
-                            <Amex width={40} />
-                        </div>
+                    <div className="flex items-center gap-6 opacity-90  transition-all duration-500 text-gold-500">
+
+                        <FaCcVisa size={30} />
+                        <FaCcMastercard size={30} />
+                        <FaCcAmex size={30} />
                     </div>
+
                 </div>
             </div>
         </footer>
