@@ -518,7 +518,7 @@ export default function Home() {
               <Feather className="text-gold-600 group-hover:text-white transition-colors" size={36} strokeWidth={1} />
             </div>
             <h3 className="text-3xl font-serif mb-3 text-gray-900 group-hover:text-gold-700 transition-colors">100% Cotton</h3>
-            <p className="text-gold-600 uppercase tracking-[0.2em] text-[10px] font-bold">Finest Organic Fabric</p>
+            <p className="text-gold-600 uppercase tracking-[0.2em] text-[10px] font-bold">Premium Fabric</p>
           </div>
           <div className="flex flex-col items-center group">
             <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-lg border border-gold-100 group-hover:bg-gold-500 transition-all duration-500">
