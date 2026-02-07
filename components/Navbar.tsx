@@ -3,137 +3,232 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, ShoppingBag, User, Menu, X } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
+import { CATEGORIES } from "@/lib/data";
 
 /**
  * Premium Navbar for DressCo
  * Features:
  * - White and Gold theme
  * - Centered logo
- * - Responsive mobile menu
+ * - Responsive mobile menu with dropdowns
  * - Scroll-based transparency and shrinking
  */
+interface NavLink {
+    name: string;
+    href: string;
+    children?: string[];
+}
+
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+    const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 20) {
-                setIsScrolled(true);
-            } else {
-                setIsScrolled(false);
-            }
+            setIsScrolled(window.scrollY > 20);
         };
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    const navLinks = [
-        { name: "Women", href: "/women" },
-        { name: "Men", href: "/men" },
-        { name: "French Terry", href: "/french-terry" },
-        { name: "Sustainability", href: "/sustainability" },
+    const navLinks: NavLink[] = [
+        { name: "Home", href: "/" },
+        { name: "Collections", href: "/collections" },
+        ...(CATEGORIES.map(cat => ({
+            name: cat.name,
+            href: `/collections?category=${cat.name}`,
+            children: cat.subCategories
+        })) as NavLink[]),
+        // { name: "Sustainability", href: "/sustainability" },
         { name: "Why Us", href: "/why-us" },
     ];
 
-    const rightLinks = [
+    const rightLinks: NavLink[] = [
         { name: "Reviews", href: "/reviews" },
         { name: "Our Story", href: "/our-story" },
     ];
 
     return (
         <nav
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
-                ? "bg-white/98 backdrop-blur-md py-6 lg:py-8 shadow-md border-b-2 border-gold-200"
-                : "bg-white py-7 lg:py-9 border-t-4 border-gold-500"
+            className={`fixed top-0 left-0 w-full z-999 transition-all duration-500 ${isScrolled
+                ? "bg-white/95 backdrop-blur-md py-2 lg:py-3 shadow-sm border-b border-gold-100"
+                : "bg-white py-3 lg:py-4 border-t-4 border-t-gold-500 border-b border-b-gold-50"
                 }`}
         >
-            <div className="max-w-[1440px] mx-auto px-4 md:px-10 flex items-center justify-between relative">
-                {/* Mobile Menu Toggle */}
-                <button
-                    className="lg:hidden text-gray-900 hover:text-gold-500 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                >
-                    {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                </button>
+            <div className="max-w-[1700px] mx-auto px-4 md:px-12 flex items-center h-full">
 
-                {/* Left Side: Links (Desktop) */}
-                <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.name}
-                            href={link.href}
-                            className="text-[11px] font-semibold tracking-[0.2em] uppercase hover:text-gold-500 transition-colors text-gray-900"
-                        >
-                            {link.name}
-                        </Link>
-                    ))}
+                <div className="flex-1 flex items-center justify-start relative">
+                    {/* Mobile Menu Toggle */}
+                    <button
+                        className="lg:hidden text-gray-900 hover:text-gold-500 transition-colors p-4 -ml-4 relative z-1001"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsMobileMenuOpen(!isMobileMenuOpen);
+                        }}
+                        aria-label="Toggle Menu"
+                    >
+                        {isMobileMenuOpen ? <X size={28} strokeWidth={1.5} /> : <Menu size={28} strokeWidth={1.5} />}
+                    </button>
+
+                    {/* Desktop Left Links */}
+                    <div className="hidden lg:flex items-center space-x-6 xl:space-x-10">
+                        {navLinks.map((link) => (
+                            <div
+                                key={link.name}
+                                className="relative group h-full flex items-center"
+                                onMouseEnter={() => setActiveDropdown(link.name)}
+                                onMouseLeave={() => setActiveDropdown(null)}
+                            >
+                                <Link
+                                    href={link.href}
+                                    className="text-[10px] xl:text-[11px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
+                                >
+                                    {link.name}
+                                    {link.children && link.children.length > 0 && (
+                                        <ChevronDown
+                                            size={11}
+                                            className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180 text-gold-500' : 'text-gray-400'}`}
+                                        />
+                                    )}
+                                </Link>
+
+                                {/* Dropdown Menu */}
+                                {link.children && link.children.length > 0 && (
+                                    <div className={`absolute top-full left-0 w-64 bg-white shadow-2xl border-t-2 border-gold-500 py-8 px-10 transition-all duration-300 origin-top transform ${activeDropdown === link.name ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0 pointer-events-none'}`}>
+                                        <div className="flex flex-col space-y-5 border-l-2 border-gold-100 pl-5">
+                                            <Link
+                                                href={link.href}
+                                                className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-gold-600 hover:text-gold-800 transition-colors"
+                                            >
+                                                View All
+                                            </Link>
+                                            {link.children.map((sub: string) => (
+                                                <Link
+                                                    key={sub}
+                                                    href={`/collections?category=${link.name}&subcategory=${sub}`}
+                                                    className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-gold-600 transition-colors whitespace-nowrap"
+                                                >
+                                                    {sub}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Center: Logo */}
-                <div className="absolute left-1/2 -translate-x-1/2 shrink-0">
-                    <Link href="/">
+                {/* Center Section: Logo (Shrink-0) */}
+                <div className="shrink-0 flex justify-center relative z-50">
+                    <Link href="/" className="block relative h-14 lg:h-16 w-28 md:w-36 lg:w-56" onClick={() => setIsMobileMenuOpen(false)}>
                         <Image
                             src="/logo.png"
                             alt="DressCo Logo"
-                            width={240}
-                            height={80}
-                            className="h-14 lg:h-16 w-auto object-cover"
+                            fill
+                            className="object-contain"
                             priority
                         />
                     </Link>
                 </div>
 
-                {/* Right Side: Links & Icons (Desktop) */}
-                <div className="flex items-center space-x-4 lg:space-x-6 xl:space-x-8">
-                    <div className="hidden lg:flex items-center space-x-6 xl:space-x-8 mr-4">
+                {/* Right Section: Desktop Links & Icons (Flex-1) */}
+                <div className="flex-1 flex items-center justify-end gap-6 xl:gap-8">
+                    <div className="hidden lg:flex items-center space-x-6 xl:space-x-10">
                         {rightLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-[11px] font-semibold tracking-[0.2em] uppercase hover:text-gold-500 transition-colors text-gray-900"
+                                className="text-[10px] xl:text-[11px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
                             >
                                 {link.name}
                             </Link>
                         ))}
                     </div>
 
-                    <div className="flex items-center space-x-3 md:space-x-5">
-                        <button className="text-gold-600 hover:text-gold-400 transition-colors">
-                            <User size={19} strokeWidth={1.5} />
+                    <div className="flex items-center space-x-4 lg:space-x-7 relative z-50">
+                        <button className="text-gray-900 hover:text-gold-600 transition-colors" title="Search">
+                            <Search size={21} strokeWidth={1} />
                         </button>
-                        <button className="text-gold-600 hover:text-gold-400 transition-colors">
-                            <Search size={19} strokeWidth={1.5} />
-                        </button>
-                        <button className="text-gold-600 hover:text-gold-400 transition-colors relative">
-                            <ShoppingBag size={19} strokeWidth={1.5} />
-                            <span className="absolute -top-1.5 -right-1.5 bg-gold-600 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm">
+                        <button className="text-gray-900 hover:text-gold-600 transition-all relative group/cart" title="Shopping Bag">
+                            <ShoppingBag size={21} strokeWidth={1} />
+                            <span className="absolute -top-2 -right-2 bg-gold-600 text-white text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold shadow-sm group-hover/cart:scale-110 transition-transform">
                                 0
                             </span>
                         </button>
+                        <button className="text-gray-900 hover:text-gold-600 transition-colors" title="Account">
+                            <User size={21} strokeWidth={1} />
+                        </button>
                     </div>
                 </div>
+
+                {/* Mobile Menu Overlay - Now inside the relative container to fix unscrolled bug */}
+                {isMobileMenuOpen && (
+                    <div className="lg:hidden absolute top-full left-[-16px] md:left-[-48px] w-[calc(100%+32px)] md:w-[calc(100%+96px)] bg-white border-t border-gold-100 shadow-2xl overflow-y-auto max-h-[85vh] animate-in fade-in slide-in-from-top duration-300 z-1000">
+                        <div className="px-8 py-12 flex flex-col space-y-10 bg-white">
+                            {navLinks.map((link) => (
+                                <div key={link.name} className="flex flex-col">
+                                    <div className="flex items-center justify-between">
+                                        <Link
+                                            href={link.href}
+                                            className="text-[14px] font-bold tracking-[0.2em] uppercase text-gray-900 py-1"
+                                            onClick={() => (!link.children || link.children.length === 0) && setIsMobileMenuOpen(false)}
+                                        >
+                                            {link.name}
+                                        </Link>
+                                        {link.children && link.children.length > 0 && (
+                                            <button
+                                                onClick={() => setMobileExpanded(mobileExpanded === link.name ? null : link.name)}
+                                                className="p-3 text-gold-600 bg-gold-50/50 rounded-full active:scale-95 transition-all"
+                                            >
+                                                <ChevronDown className={`transition-transform duration-300 ${mobileExpanded === link.name ? 'rotate-180' : ''}`} size={20} />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {link.children && link.children.length > 0 && mobileExpanded === link.name && (
+                                        <div className="mt-5 pl-7 border-l-2 border-gold-200 flex flex-col space-y-6 py-2 animate-in fade-in slide-in-from-left duration-500">
+                                            <Link
+                                                href={link.href}
+                                                className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-gold-600"
+                                                onClick={() => setIsMobileMenuOpen(false)}
+                                            >
+                                                View All {link.name}
+                                            </Link>
+                                            {link.children.map((sub: string) => (
+                                                <Link
+                                                    key={sub}
+                                                    href={`/collections?category=${link.name}&subcategory=${sub}`}
+                                                    className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400"
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                >
+                                                    {sub}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            <div className="h-px bg-gold-50" />
+                            <div className="grid grid-cols-2 gap-8">
+                                {rightLinks.map((link) => (
+                                    <Link
+                                        key={link.name}
+                                        href={link.href}
+                                        className="text-[12px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-gold-600 text-center py-2 transition-colors"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {/* Mobile Menu Overlay */}
-            {isMobileMenuOpen && (
-                <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-gold-100 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top duration-300">
-                    <div className="flex flex-col p-8 space-y-6 bg-white">
-                        {[...navLinks, ...rightLinks].map((link) => (
-                            <Link
-                                key={link.name}
-                                href={link.href}
-                                className="text-sm font-semibold tracking-[0.2em] uppercase hover:text-gold-500 transition-colors text-gray-900"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                {link.name}
-                            </Link>
-                        ))}
-
-                    </div>
-                </div>
-            )}
         </nav>
     );
 };
