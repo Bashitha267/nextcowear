@@ -159,14 +159,14 @@ export default function Home() {
             <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-500 mb-6 block">
               Discover Our Best Selling Collection
             </span>
-            <div className="flex justify-center gap-12 border-b border-gold-200/50 pb-px">
-              <button className="text-sm font-bold tracking-[0.2em] uppercase py-4 border-b-2 border-gold-500 text-gold-600 transition-all">
+            <div className="flex justify-center gap-4 sm:gap-8 md:gap-12 border-b border-gold-200/50 pb-px overflow-x-auto no-scrollbar">
+              <button className="text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.2em] uppercase py-4 border-b-2 border-gold-500 text-gold-600 transition-all whitespace-nowrap">
                 For Women
               </button>
-              <button className="text-sm font-bold tracking-[0.2em] uppercase py-4 text-gray-400 hover:text-gold-500 transition-all">
+              <button className="text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.2em] uppercase py-4 text-gray-400 hover:text-gold-500 transition-all whitespace-nowrap">
                 For Men
               </button>
-              <button className="text-sm font-bold tracking-[0.2em] uppercase py-4 text-gray-400 hover:text-gold-500 transition-all">
+              <button className="text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.2em] uppercase py-4 text-gray-400 hover:text-gold-500 transition-all whitespace-nowrap">
                 For Kids
               </button>
             </div>
@@ -549,22 +549,22 @@ export default function Home() {
             <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-lg border border-gold-100 group-hover:bg-gold-500 transition-all duration-500">
               <Feather className="text-gold-600 group-hover:text-white transition-colors" size={36} strokeWidth={1} />
             </div>
-            <h3 className="text-3xl font-serif mb-3 text-gray-900 group-hover:text-gold-700 transition-colors">100% Cotton</h3>
-            <p className="text-gold-600 uppercase tracking-[0.2em] text-[10px] font-bold">Premium Fabric</p>
+            <h3 className="text-2xl md:text-3xl font-serif mb-3 text-gray-900 group-hover:text-gold-700 transition-colors">Superior Fabric Selection</h3>
+            <p className="text-gold-600 tracking-wide text-[11px] font-bold italic">Premium Sri Lankan-crafted and imported clothing</p>
           </div>
           <div className="flex flex-col items-center group">
             <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-lg border border-gold-100 group-hover:bg-gold-500 transition-all duration-500">
               <Scissors className="text-gold-600 group-hover:text-white transition-colors" size={36} strokeWidth={1} />
             </div>
-            <h3 className="text-3xl font-serif mb-3 text-gray-900 group-hover:text-gold-700 transition-colors">Artisan Made</h3>
-            <p className="text-gold-600 uppercase tracking-[0.2em] text-[10px] font-bold">Meticulous Craftsmanship</p>
+            <h3 className="text-2xl md:text-3xl font-serif mb-3 text-gray-900 group-hover:text-gold-700 transition-colors">Master Craftsmanship</h3>
+            <p className="text-gold-600 tracking-widest text-[11px] font-bold italic">Skill You Can Feel</p>
           </div>
           <div className="flex flex-col items-center group">
             <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-lg border border-gold-100 group-hover:bg-gold-500 transition-all duration-500">
               <Leaf className="text-gold-600 group-hover:text-white transition-colors" size={36} strokeWidth={1} />
             </div>
-            <h3 className="text-3xl font-serif mb-3 text-gray-900 group-hover:text-gold-700 transition-colors">Sustainable</h3>
-            <p className="text-gold-600 uppercase tracking-[0.2em] text-[10px] font-bold">Eco-Conscious Fashion</p>
+            <h3 className="text-2xl md:text-3xl font-serif mb-3 text-gray-900 group-hover:text-gold-700 transition-colors">Refined Finishing</h3>
+            <p className="text-gold-600 tracking-widest text-[11px] font-bold italic">Every Detail Perfected</p>
           </div>
         </div>
       </section>
