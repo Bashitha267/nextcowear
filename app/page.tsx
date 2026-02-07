@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Star, ChevronLeft, ChevronRight, Quote, Plus } from "lucide-react";
+import { ArrowRight, Star, ChevronLeft, ChevronRight, Quote, Plus, Feather, Scissors, Leaf } from "lucide-react";
 
 export default function Home() {
   return (
@@ -494,19 +494,28 @@ export default function Home() {
       </section>
 
       {/* Featured Categories / Stats (Trust Bar) */}
-      <section className="py-20 bg-gold-50/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div>
-            <h3 className="text-3xl font-serif mb-2 text-gray-900">100% Cotton</h3>
-            <p className="text-gray-500 uppercase tracking-widest text-xs font-bold">Finest Organic Fabric</p>
+      <section className="py-24 bg-gold-50/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12 text-center">
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-6 shadow-sm">
+              <Feather className="text-gold-600" size={32} strokeWidth={1} />
+            </div>
+            <h3 className="text-3xl font-serif mb-3 text-gray-900">100% Cotton</h3>
+            <p className="text-gray-500 uppercase tracking-[0.2em] text-[10px] font-bold">Finest Organic Fabric</p>
           </div>
-          <div>
-            <h3 className="text-3xl font-serif mb-2 text-gray-900">Artisan Made</h3>
-            <p className="text-gray-500 uppercase tracking-widest text-xs font-bold">Meticulous Craftsmanship</p>
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-6 shadow-sm">
+              <Scissors className="text-gold-600" size={32} strokeWidth={1} />
+            </div>
+            <h3 className="text-3xl font-serif mb-3 text-gray-900">Artisan Made</h3>
+            <p className="text-gray-500 uppercase tracking-[0.2em] text-[10px] font-bold">Meticulous Craftsmanship</p>
           </div>
-          <div>
-            <h3 className="text-3xl font-serif mb-2 text-gray-900">Sustainable</h3>
-            <p className="text-gray-500 uppercase tracking-widest text-xs font-bold">Eco-Conscious Fashion</p>
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-6 shadow-sm">
+              <Leaf className="text-gold-600" size={32} strokeWidth={1} />
+            </div>
+            <h3 className="text-3xl font-serif mb-3 text-gray-900">Sustainable</h3>
+            <p className="text-gray-500 uppercase tracking-[0.2em] text-[10px] font-bold">Eco-Conscious Fashion</p>
           </div>
         </div>
       </section>
