@@ -45,8 +45,8 @@ const Navbar = () => {
     return (
         <nav
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
-                ? "bg-white/95 backdrop-blur-sm py-5 shadow-sm border-b border-gold-100"
-                : "bg-white py-8"
+                ? "bg-white/98 backdrop-blur-md py-6 lg:py-8 shadow-md border-b-2 border-gold-200"
+                : "bg-white py-7 lg:py-9 border-t-4 border-gold-500"
                 }`}
         >
             <div className="max-w-[1440px] mx-auto px-4 md:px-10 flex items-center justify-between relative">
@@ -77,9 +77,9 @@ const Navbar = () => {
                         <Image
                             src="/logo.png"
                             alt="DressCo Logo"
-                            width={200}
-                            height={70}
-                            className="h-8 md:h-10 lg:h-12 w-auto object-cover"
+                            width={240}
+                            height={80}
+                            className="h-14 lg:h-16 w-auto object-cover"
                             priority
                         />
                     </Link>
@@ -100,15 +100,15 @@ const Navbar = () => {
                     </div>
 
                     <div className="flex items-center space-x-3 md:space-x-5">
-                        <button className="text-gray-900 hover:text-gold-500 transition-colors">
-                            <User size={19} strokeWidth={1.2} />
+                        <button className="text-gold-600 hover:text-gold-400 transition-colors">
+                            <User size={19} strokeWidth={1.5} />
                         </button>
-                        <button className="text-gray-900 hover:text-gold-500 transition-colors">
-                            <Search size={19} strokeWidth={1.2} />
+                        <button className="text-gold-600 hover:text-gold-400 transition-colors">
+                            <Search size={19} strokeWidth={1.5} />
                         </button>
-                        <button className="text-gray-900 hover:text-gold-500 transition-colors relative">
-                            <ShoppingBag size={19} strokeWidth={1.2} />
-                            <span className="absolute -top-1.5 -right-1.5 bg-gold-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                        <button className="text-gold-600 hover:text-gold-400 transition-colors relative">
+                            <ShoppingBag size={19} strokeWidth={1.5} />
+                            <span className="absolute -top-1.5 -right-1.5 bg-gold-600 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm">
                                 0
                             </span>
                         </button>
@@ -130,16 +130,7 @@ const Navbar = () => {
                                 {link.name}
                             </Link>
                         ))}
-                        <div className="pt-6 border-t border-gray-100 flex items-center space-x-6">
-                            <Link
-                                href="/account"
-                                className="flex items-center space-x-2 text-xs font-semibold tracking-[0.2em] uppercase text-gray-900"
-                                onClick={() => setIsMobileMenuOpen(false)}
-                            >
-                                <User size={18} />
-                                <span>Account</span>
-                            </Link>
-                        </div>
+
                     </div>
                 </div>
             )}

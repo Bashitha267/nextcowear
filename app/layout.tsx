@@ -15,8 +15,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "DressCo | Premium T-Shirts",
-  description: "Exquisite T-shirts for the modern individual.",
+  title: "DressCo | Premium Cloths",
+  description: "Exquisite Cloths for the modern individual.",
 };
 
 export default function RootLayout({
