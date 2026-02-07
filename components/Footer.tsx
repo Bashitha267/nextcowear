@@ -45,6 +45,8 @@ const Footer = () => {
                                 { name: "Mens Short Sleeve", href: "/men/short-sleeve" },
                                 { name: "Mens Long Sleeve", href: "/men/long-sleeve" },
                                 { name: "Mens French Terry", href: "/men/french-terry" },
+                                { name: "Kids Collection", href: "/kids" },
+                                { name: "Kids French Terry", href: "/kids/french-terry" },
                                 { name: "All Collections", href: "/collections" },
                             ].map((link) => (
                                 <li key={link.name}>

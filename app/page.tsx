@@ -17,7 +17,7 @@ export default function Home() {
               <span className="bg-linear-to-r from-gold-400 via-gold-600 to-gold-400 bg-clip-text text-transparent">Everyday</span> Style
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-lg animate-in fade-in slide-in-from-bottom duration-1000 delay-200">
-              Discover the finest Sri Lankan cotton Cloths, meticulously crafted for comfort and sophistication. Experience the authentic touch of our island's luxury.
+              Discover the best cloths, meticulously tailed for comfort and sophistication. Experience the authentic touch of luxury.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
               <Link
@@ -62,7 +62,7 @@ export default function Home() {
 
       {/* Gender Selection Section */}
       <section className="py-12 bg-gold-50/20">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 leading-none">
+        <div className="max-w-[1440px] mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10 leading-none">
           {/* Women's Card */}
           <div className="relative aspect-4/5 md:aspect-auto md:h-[80vh] overflow-hidden group border-2 border-gold-100/50 hover:border-gold-300 transition-colors duration-500">
             <Image
@@ -120,6 +120,35 @@ export default function Home() {
               <div className="absolute top-0 left-0 w-[200%] h-[200%] border-t-2 border-l-2 border-gold-500 -rotate-45 transform -translate-x-1/2 -translate-y-1/2"></div>
             </div>
           </div>
+
+          {/* Kids' Card */}
+          <div className="relative aspect-4/5 md:aspect-auto md:h-[80vh] overflow-hidden group border-2 border-gold-100/50 hover:border-gold-300 transition-colors duration-500">
+            <Image
+              src="https://res.cloudinary.com/dxoa3ashm/image/upload/v1770459423/Peach_Minimalist_Kids_Fashion_Instagram_Post_nt29gy.jpg"
+              alt="Kids' Collection"
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-110 brightness-50"
+            />
+            <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-500"></div>
+            <div className="absolute bottom-12 left-8 md:left-12 right-8 text-white z-10">
+              <span className="block text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase mb-4 text-gold-200">
+                100% Premium Fabric Cloths for Kids
+              </span>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider">
+                Playfully Made In <br /> <span className="text-gold-400">Sri Lanka</span>
+              </h2>
+              <Link
+                href="/kids"
+                className="inline-block bg-white text-gray-900 border border-transparent px-8 md:px-12 py-4 text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-500 hover:text-white transition-all shadow-xl"
+              >
+                Shop Kids
+              </Link>
+            </div>
+            {/* Gold Corner Design */}
+            <div className="absolute bottom-0 right-0 w-32 h-32 opacity-20 pointer-events-none overflow-hidden">
+              <div className="absolute bottom-0 right-0 w-[200%] h-[200%] border-b-2 border-r-2 border-gold-500 -rotate-45 transform translate-x-1/2 translate-y-1/2"></div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -136,6 +165,9 @@ export default function Home() {
               </button>
               <button className="text-sm font-bold tracking-[0.2em] uppercase py-4 text-gray-400 hover:text-gold-500 transition-all">
                 For Men
+              </button>
+              <button className="text-sm font-bold tracking-[0.2em] uppercase py-4 text-gray-400 hover:text-gold-500 transition-all">
+                For Kids
               </button>
             </div>
           </div>
@@ -547,7 +579,7 @@ export default function Home() {
         />
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
           <h2 className="text-xs md:text-sm font-bold tracking-[0.4em] uppercase mb-8">
-            Why Sri Lankan Cotton?
+            Why Premium Fabric?
           </h2>
           <p className="text-lg md:text-2xl font-light leading-relaxed mb-12 opacity-90">
             DressCo was founded to redefine the fashion industry in Sri Lanka by creating ethically
