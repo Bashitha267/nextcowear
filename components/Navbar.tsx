@@ -45,8 +45,8 @@ const Navbar = () => {
     return (
         <nav
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${isScrolled
-                ? "bg-white/95 backdrop-blur-sm py-3 shadow-sm border-b border-gold-100"
-                : "bg-white py-6"
+                ? "bg-white/95 backdrop-blur-sm py-5 shadow-sm border-b border-gold-100"
+                : "bg-white py-8"
                 }`}
         >
             <div className="max-w-[1440px] mx-auto px-4 md:px-10 flex items-center justify-between relative">
@@ -78,8 +78,8 @@ const Navbar = () => {
                             src="/logo.png"
                             alt="DressCo Logo"
                             width={200}
-                            height={50}
-                            className="h-8 md:h-10 lg:h-12 w-auto object-contain"
+                            height={70}
+                            className="h-8 md:h-10 lg:h-12 w-auto object-cover"
                             priority
                         />
                     </Link>

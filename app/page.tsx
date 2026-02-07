@@ -6,9 +6,9 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-white pt-20">
       {/* Hero Section */}
-      <section className="relative h-[90vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden py-12 lg:py-0">
         <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
-          <div>
+          <div className="order-2 lg:order-1">
             <span className="inline-block text-gold-600 font-medium tracking-[0.3em] uppercase mb-4 animate-in fade-in slide-in-from-bottom duration-700">
               Premium Collection 2026
             </span>
@@ -35,13 +35,14 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="relative hidden lg:block animate-in fade-in zoom-in duration-1000">
+          <div className="relative order-1 lg:order-2 animate-in fade-in zoom-in duration-1000">
             <div className="relative w-full aspect-4/5 rounded-sm overflow-hidden border-12 border-gold-50">
               <Image
                 src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770442924/tshirt_vp2ngs.jpg"
                 alt="Premium T-Shirt"
                 fill
                 className="object-cover"
+                priority
               />
             </div>
             {/* Decorative elements */}
