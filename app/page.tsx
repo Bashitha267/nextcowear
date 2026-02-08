@@ -2,13 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Star, ChevronLeft, ChevronRight, Quote, Plus, Feather, Scissors, Leaf } from "lucide-react";
 import TestimonialsDrawer from "@/components/TestimonialsDrawer";
+import { products } from "@/lib/data";
 
 export default function Home() {
+  const bestSellers = products.slice(0, 4);
+
   return (
     <div className="relative min-h-screen bg-white pt-20">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden py-12 lg:py-0 bg-gold-50/40">
-        <div className="w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden py-12 lg:py-0 bg-gold-50/40 lg:px-20">
+        <div className="w-full px-4 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center z-10">
           <div className="order-2 lg:order-1">
             <span className="inline-block text-gold-600 font-medium tracking-[0.3em] uppercase mb-4 animate-in fade-in slide-in-from-bottom duration-700">
               Sri Lankan Heritage 2026
@@ -66,7 +69,7 @@ export default function Home() {
 
       {/* Gender Selection Section */}
       <section className="py-12 bg-gold-50/20">
-        <div className="w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10 leading-none">
+        <div className="w-full px-4 md:px-10 grid grid-cols-1 lg:grid-cols-3 gap-3 leading-none">
           {/* Women's Card */}
           <div className="relative aspect-4/5 md:aspect-auto md:h-[80vh] overflow-hidden group border-2 border-gold-100/50 hover:border-gold-300 transition-colors duration-500">
             <Image
@@ -158,7 +161,7 @@ export default function Home() {
 
       {/* Best Selling Section */}
       <section className="py-20 bg-gold-50">
-        <div className="w-full px-4 md:px-8">
+        <div className="w-full px-4 md:px-10">
           <div className="text-center mb-16">
             <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-500 mb-6 block">
               Discover Our Best Selling Collection
@@ -178,170 +181,56 @@ export default function Home() {
 
           <div className="relative group">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-              {/* Product 1 */}
-              <div className="flex flex-col">
-                <div className="relative aspect-4/5 overflow-hidden mb-6 group/item border border-gold-50 hover:border-gold-300 transition-all duration-300">
-                  <Image
-                    src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443016/pro_stuf7a.jpg"
-                    alt="Product 1"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover/item:scale-105"
-                  />
-                  <span className="absolute top-2 left-2 bg-gold-600 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 shadow-sm">
-                    Best Seller
-                  </span>
-                  <button className="absolute bottom-4 right-4 bg-white/90 p-2 rounded-sm shadow-sm opacity-0 translate-y-2 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all hover:bg-gold-500 hover:text-white">
-                    <Plus size={18} />
-                  </button>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase mb-2 text-gray-900">
-                    Womens 3/4 Sleeve Crew Neck
-                  </h3>
-                  <div className="text-gray-500 text-xs mb-4 font-medium tracking-wider">
-                    RS 28,600
+              {bestSellers.map((product) => (
+                <div key={product.id} className="flex flex-col group/item transition-all duration-500 hover:-translate-y-2">
+                  <div className="relative aspect-4/5 overflow-hidden mb-6 border border-gold-50 hover:border-gold-300 transition-all duration-300 rounded-sm shadow-sm group-hover/item:shadow-xl">
+                    <Link href={`/product/${product.id}`} className="block relative w-full h-full">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover/item:scale-110"
+                      />
+                    </Link>
+                    {product.isBestSeller && (
+                      <span className="absolute top-2 left-2 bg-gold-600 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 shadow-sm z-10">
+                        Best Seller
+                      </span>
+                    )}
+                    <button className="absolute bottom-4 right-4 bg-white/95 p-3 rounded-full shadow-lg opacity-0 translate-y-4 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all hover:bg-gold-500 hover:text-white z-20">
+                      <Plus size={20} />
+                    </button>
                   </div>
-                  <div className="flex justify-center gap-1.5 mb-4">
-                    <span className="w-3.5 h-3.5 rounded-full border border-gray-200 bg-white"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-900"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-slate-800"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-amber-800"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-purple-800"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-yellow-400"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-red-600"></span>
-                  </div>
-                  <div className="flex items-center justify-center gap-1 text-gold-500">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={10} className="fill-current" />
-                    ))}
-                    <span className="text-[10px] font-medium text-gray-400 ml-1">(5.0)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Product 2 */}
-              <div className="flex flex-col">
-                <div className="relative aspect-4/5 overflow-hidden mb-6 group/item border border-gold-50 hover:border-gold-300 transition-all duration-300">
-                  <Image
-                    src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1000"
-                    alt="Product 2"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover/item:scale-105"
-                  />
-                  <span className="absolute top-2 left-2 bg-gold-600 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 shadow-sm">
-                    Best Seller
-                  </span>
-                  <button className="absolute bottom-4 right-4 bg-white/90 p-2 rounded-sm shadow-sm opacity-0 translate-y-2 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all hover:bg-gold-500 hover:text-white">
-                    <Plus size={18} />
-                  </button>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase mb-2 text-gray-900">
-                    Womens Elbow Sleeve V-Neck
-                  </h3>
-                  <div className="text-gray-500 text-xs mb-4 font-medium tracking-wider">
-                    RS 25,400
-                  </div>
-                  <div className="flex justify-center gap-1.5 mb-4">
-                    <span className="w-3.5 h-3.5 rounded-full border border-gray-200 bg-white"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-900"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-slate-800"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-700"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-purple-700"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-blue-100"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-teal-600"></span>
-                  </div>
-                  <div className="flex items-center justify-center gap-1 text-gray-900">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={10} className="fill-current" />
-                    ))}
-                    <span className="text-[10px] font-medium text-gray-400 ml-1">(4.8)</span>
+                  <div className="text-center px-2">
+                    <Link href={`/product/${product.id}`} className="block group/title">
+                      <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase mb-2 text-gray-900 line-clamp-2 h-8 group-hover/title:text-gold-600 transition-colors">
+                        {product.name}
+                      </h3>
+                    </Link>
+                    <div className="text-gold-600 text-sm mb-4 font-bold tracking-wider">
+                      RS {product.price.toLocaleString()}
+                    </div>
+                    <div className="flex justify-center gap-1.5 mb-5">
+                      {[...(product.colors.classic || []), ...(product.colors.seasonal || [])].slice(0, 5).map((color, idx) => (
+                        <div
+                          key={idx}
+                          className="w-3.5 h-3.5 rounded-full border border-gray-100 shadow-inner hover:scale-125 transition-transform cursor-pointer"
+                          style={{ backgroundColor: color.hex }}
+                          title={color.name}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="flex text-gold-500">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={11} className={i < Math.floor(product.rating) ? "fill-current" : "text-gray-200"} strokeWidth={1} />
+                        ))}
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">({product.reviews})</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Product 3 */}
-              <div className="flex flex-col">
-                <div className="relative aspect-4/5 overflow-hidden mb-6 group/item">
-                  <Image
-                    src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443930/Beige_White_and_Brown_Modern_Fashion_Facebook_Cover_on5b6y.jpg"
-                    alt="Product 3"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover/item:scale-105"
-                  />
-                  <span className="absolute top-2 left-2 bg-gray-900 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1">
-                    Best Seller
-                  </span>
-                  <button className="absolute bottom-4 right-4 bg-white/90 p-2 rounded-sm shadow-sm opacity-0 translate-y-2 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all hover:bg-gold-500 hover:text-white">
-                    <Plus size={18} />
-                  </button>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase mb-2 text-gray-900">
-                    Womens Elbow Sleeve Crew Neck
-                  </h3>
-                  <div className="text-gray-500 text-xs mb-4 font-medium tracking-wider">
-                    RS 25,400
-                  </div>
-                  <div className="flex justify-center gap-1.5 mb-4">
-                    <span className="w-3.5 h-3.5 rounded-full border border-gray-200 bg-white shadow-inner"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-900"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-slate-800"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-700"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-purple-700"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-blue-100"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-teal-600"></span>
-                  </div>
-                  <div className="flex items-center justify-center gap-1 text-gray-900">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={10} className="fill-current" />
-                    ))}
-                    <span className="text-[10px] font-medium text-gray-400 ml-1">(4.8)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Product 4 */}
-              <div className="flex flex-col">
-                <div className="relative aspect-4/5 overflow-hidden mb-6 group/item">
-                  <Image
-                    src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=1000"
-                    alt="Product 4"
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover/item:scale-105"
-                  />
-                  <span className="absolute top-2 left-2 bg-gray-900 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1">
-                    Best Seller
-                  </span>
-                  <button className="absolute bottom-4 right-4 bg-white/90 p-2 rounded-sm shadow-sm opacity-0 translate-y-2 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all hover:bg-gold-500 hover:text-white">
-                    <Plus size={18} />
-                  </button>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-[11px] font-bold tracking-[0.2em] uppercase mb-2 text-gray-900">
-                    Womens Long Sleeve Crew Neck
-                  </h3>
-                  <div className="text-gray-500 text-xs mb-4 font-medium tracking-wider">
-                    RS 28,600
-                  </div>
-                  <div className="flex justify-center gap-1.5 mb-4 flex-wrap max-w-[160px] mx-auto">
-                    <span className="w-3.5 h-3.5 rounded-full border border-gray-200 bg-white"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-900"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-slate-800"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-700"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-gray-600"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-teal-600"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-blue-100"></span>
-                    <span className="w-3.5 h-3.5 rounded-full bg-amber-800"></span>
-                  </div>
-                  <div className="flex items-center justify-center gap-1 text-gray-900">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={10} className="fill-current" />
-                    ))}
-                    <span className="text-[10px] font-medium text-gray-400 ml-1">(4.7)</span>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
 
             {/* Slider Arrow */}
@@ -355,7 +244,7 @@ export default function Home() {
       {/* Reviews Section */}
       <section className="py-20 bg-gold-100/30 border-t border-gold-200/40 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gold-500 rounded-full blur-sm opacity-20"></div>
-        <div className="w-full px-4 md:px-8">
+        <div className="w-full px-4 md:px-10">
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
             <div>
@@ -433,14 +322,14 @@ export default function Home() {
 
             {/* Review 3 */}
             <div className="flex gap-6">
-              <div className="relative shrink-0 w-16 h-20 overflow-hidden rounded-sm">
+              <Link href={`/product/elbow-v-neck`} className="relative shrink-0 w-16 h-20 overflow-hidden rounded-sm hover:opacity-80 transition-opacity block">
                 <Image
                   src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=200"
                   alt="Product"
                   fill
                   className="object-cover"
                 />
-              </div>
+              </Link>
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex gap-0.5">
@@ -465,7 +354,7 @@ export default function Home() {
       {/* French Terry Section */}
       <section className="py-20 bg-gold-50/30 relative">
         <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-gold-300 to-transparent"></div>
-        <div className="w-full px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 leading-none">
+        <div className="w-full px-4 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8 leading-none">
           {/* Women's Card */}
           <div className="relative aspect-4/5 md:aspect-auto md:h-[80vh] overflow-hidden group">
             <div className="flex w-full h-full">
@@ -548,7 +437,7 @@ export default function Home() {
         <div className="absolute top-0 left-0 w-full h-full opacity-[0.05] pointer-events-none">
 
         </div>
-        <div className="w-full px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12 text-center relative z-10">
+        <div className="w-full px-4 md:px-10 grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-10 text-center relative z-10">
           <div className="flex flex-col items-center group">
             <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-lg border border-gold-100 group-hover:bg-gold-500 transition-all duration-500">
               <Feather className="text-gold-600 group-hover:text-white transition-colors" size={36} strokeWidth={1} />

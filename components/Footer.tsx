@@ -7,7 +7,7 @@ import { FaCcVisa, FaCcMastercard, FaCcAmex } from "react-icons/fa";
 const Footer = () => {
     return (
         <footer className="bg-gold-50/30 border-t-4 border-gold-500 pt-20 pb-10">
-            <div className="w-full px-4 md:px-10">
+            <div className=" w-full  px-4 md:px-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-20">
                     {/* About Us */}
                     <div className="space-y-6">

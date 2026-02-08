@@ -114,7 +114,7 @@ const CollectionsPage = () => {
                 </div>
             </section>
 
-            <div className="max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 flex flex-col lg:flex-row gap-12">
+            <div className="w-full px-4 md:px-10 flex flex-col lg:flex-row gap-12">
                 {/* Sidebar Filters (Desktop) */}
                 <aside className="hidden lg:block w-72 shrink-0">
                     <div className="sticky top-40 space-y-8">
@@ -295,21 +295,23 @@ const CollectionsPage = () => {
                             {paginatedProducts.map((product) => (
                                 <div key={product.id} className="group animate-in fade-in zoom-in duration-500">
                                     <div className="relative aspect-3/4 overflow-hidden mb-6 border-2 border-gold-50 group-hover:border-gold-300 transition-all duration-700 shadow-sm rounded-sm">
-                                        <Image
-                                            src={product.image}
-                                            alt={product.name}
-                                            fill
-                                            className="object-cover transition-transform duration-1000 group-hover:scale-110"
-                                        />
-                                        {/* Badges */}
-                                        <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 transition-transform duration-500 group-hover:-translate-y-1">
-                                            {product.isNew && (
-                                                <span className="bg-gold-500 text-white text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-2 shadow-lg rounded-xs">New</span>
-                                            )}
-                                            {product.isBestSeller && (
-                                                <span className="bg-gray-900 text-white text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-2 shadow-lg rounded-xs">Top Seller</span>
-                                            )}
-                                        </div>
+                                        <Link href={`/product/${product.id}`} className="block relative w-full h-full cursor-pointer overflow-hidden z-10">
+                                            <Image
+                                                src={product.image}
+                                                alt={product.name}
+                                                fill
+                                                className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                                            />
+                                            {/* Badges */}
+                                            <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 transition-transform duration-500 group-hover:-translate-y-1">
+                                                {product.isNew && (
+                                                    <span className="bg-gold-500 text-white text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-2 shadow-lg rounded-xs">New</span>
+                                                )}
+                                                {product.isBestSeller && (
+                                                    <span className="bg-gray-900 text-white text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-2 shadow-lg rounded-xs">Top Seller</span>
+                                                )}
+                                            </div>
+                                        </Link>
 
                                         {/* Quick Add Bottom Bar */}
                                         <div className="absolute bottom-0 left-0 w-full translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20">
@@ -334,14 +336,19 @@ const CollectionsPage = () => {
                                             )}
                                         </div>
                                         <div className="flex justify-center gap-2 mb-5">
-                                            {product.colors.map(color => (
+                                            {[...(product.colors.classic || []), ...(product.colors.seasonal || [])].slice(0, 5).map((color, idx) => (
                                                 <div
-                                                    key={color.name}
+                                                    key={`${color.name}-${idx}`}
                                                     className="w-3.5 h-3.5 rounded-full border border-gray-100 shadow-sm transition-all hover:scale-150 cursor-pointer hover:shadow-md"
                                                     style={{ backgroundColor: color.hex }}
                                                     title={color.name}
                                                 />
                                             ))}
+                                            {[...(product.colors.classic || []), ...(product.colors.seasonal || [])].length > 5 && (
+                                                <span className="text-[8px] font-bold text-gray-400 self-center">
+                                                    +{[...(product.colors.classic || []), ...(product.colors.seasonal || [])].length - 5}
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="flex items-center justify-center gap-2">
                                             <div className="flex text-gold-500">

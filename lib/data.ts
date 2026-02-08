@@ -6,13 +6,24 @@ export interface Product {
     price: number;
     originalPrice?: number;
     image: string;
+    additionalImages?: string[];
     hoverImage?: string;
+    description?: string;
     isNew?: boolean;
     isBestSeller?: boolean;
     rating: number;
     reviews: number;
-    colors: { name: string; hex: string }[];
+    colors: {
+        classic?: { name: string; hex: string }[];
+        seasonal?: { name: string; hex: string }[];
+    };
     sizes: string[];
+    details?: {
+        overview: string;
+        sustainability: string;
+        fit: string;
+        returns: string;
+    };
 }
 
 export const CATEGORIES = [
@@ -43,7 +54,9 @@ export const products: Product[] = [
         isNew: true,
         rating: 4.8,
         reviews: 24,
-        colors: [{ name: 'Gold', hex: '#D4AF37' }, { name: 'Black', hex: '#000000' }],
+        colors: {
+            classic: [{ name: 'Gold', hex: '#D4AF37' }, { name: 'Black', hex: '#000000' }]
+        },
         sizes: ['XS', 'S', 'M', 'L']
     },
     {
@@ -56,7 +69,9 @@ export const products: Product[] = [
         isBestSeller: true,
         rating: 4.5,
         reviews: 56,
-        colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Beige', hex: '#F5F5DC' }],
+        colors: {
+            classic: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Beige', hex: '#F5F5DC' }]
+        },
         sizes: ['S', 'M', 'L']
     },
     {
@@ -68,7 +83,9 @@ export const products: Product[] = [
         image: 'https://res.cloudinary.com/dnfbik3if/image/upload/v1770473787/Brown_Aesthetic_Fashion_Sale_Billboard_Landscape_1_dxqmkq.jpg',
         rating: 4.7,
         reviews: 32,
-        colors: [{ name: 'Navy', hex: '#000080' }, { name: 'Grey', hex: '#808080' }],
+        colors: {
+            classic: [{ name: 'Navy', hex: '#000080' }, { name: 'Grey', hex: '#808080' }]
+        },
         sizes: ['S', 'M', 'L', 'XL']
     },
     {
@@ -81,7 +98,9 @@ export const products: Product[] = [
         isNew: true,
         rating: 4.9,
         reviews: 18,
-        colors: [{ name: 'Black', hex: '#000000' }, { name: 'Camel', hex: '#C19A6B' }],
+        colors: {
+            classic: [{ name: 'Black', hex: '#000000' }, { name: 'Camel', hex: '#C19A6B' }]
+        },
         sizes: ['XS', 'S', 'M', 'L']
     },
     {
@@ -94,7 +113,9 @@ export const products: Product[] = [
         isBestSeller: true,
         rating: 5.0,
         reviews: 12,
-        colors: [{ name: 'Champagne', hex: '#F7E7CE' }, { name: 'Emerald', hex: '#50C878' }],
+        colors: {
+            classic: [{ name: 'Champagne', hex: '#F7E7CE' }, { name: 'Emerald', hex: '#50C878' }]
+        },
         sizes: ['S', 'M', 'L']
     },
     {
@@ -106,7 +127,9 @@ export const products: Product[] = [
         image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&q=80&w=1000',
         rating: 4.4,
         reviews: 45,
-        colors: [{ name: 'Floral', hex: '#FF69B4' }],
+        colors: {
+            seasonal: [{ name: 'Floral', hex: '#FF69B4' }]
+        },
         sizes: ['S', 'M', 'L', 'XL']
     },
 
@@ -121,7 +144,9 @@ export const products: Product[] = [
         isBestSeller: true,
         rating: 4.6,
         reviews: 89,
-        colors: [{ name: 'Light Blue', hex: '#ADD8E6' }, { name: 'White', hex: '#FFFFFF' }],
+        colors: {
+            classic: [{ name: 'Light Blue', hex: '#ADD8E6' }, { name: 'White', hex: '#FFFFFF' }]
+        },
         sizes: ['M', 'L', 'XL', 'XXL']
     },
     {
@@ -133,7 +158,9 @@ export const products: Product[] = [
         image: 'https://images.unsplash.com/photo-1624371414361-e6e9ef0ed98d?auto=format&fit=crop&q=80&w=1000',
         rating: 4.5,
         reviews: 67,
-        colors: [{ name: 'Khaki', hex: '#C3B091' }, { name: 'Navy', hex: '#000080' }],
+        colors: {
+            classic: [{ name: 'Khaki', hex: '#C3B091' }, { name: 'Navy', hex: '#000080' }]
+        },
         sizes: ['30', '32', '34', '36']
     },
     {
@@ -146,7 +173,9 @@ export const products: Product[] = [
         isNew: true,
         rating: 4.8,
         reviews: 34,
-        colors: [{ name: 'Charcoal', hex: '#36454F' }, { name: 'Oatmeal', hex: '#E3D7D1' }],
+        colors: {
+            classic: [{ name: 'Charcoal', hex: '#36454F' }, { name: 'Oatmeal', hex: '#E3D7D1' }]
+        },
         sizes: ['S', 'M', 'L', 'XL']
     },
     {
@@ -158,7 +187,9 @@ export const products: Product[] = [
         image: 'https://images.unsplash.com/photo-1594932224010-74f43a16354b?auto=format&fit=crop&q=80&w=1000',
         rating: 5.0,
         reviews: 8,
-        colors: [{ name: 'Grey', hex: '#808080' }, { name: 'Black', hex: '#000000' }],
+        colors: {
+            classic: [{ name: 'Grey', hex: '#808080' }, { name: 'Black', hex: '#000000' }]
+        },
         sizes: ['48', '50', '52', '54']
     },
     {
@@ -170,14 +201,16 @@ export const products: Product[] = [
         image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=1000',
         rating: 4.3,
         reviews: 120,
-        colors: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Black', hex: '#000000' }],
+        colors: {
+            classic: [{ name: 'White', hex: '#FFFFFF' }, { name: 'Black', hex: '#000000' }]
+        },
         sizes: ['S', 'M', 'L', 'XL', 'XXL']
     },
 
     // KIDS
     {
         id: 'k1',
-        name: 'Organic Cotton Onesie',
+        name: 'Premium Fabric Onesie',
         category: 'Kids',
         subCategory: 'Infants',
         price: 1800,
@@ -185,7 +218,9 @@ export const products: Product[] = [
         isBestSeller: true,
         rating: 4.9,
         reviews: 42,
-        colors: [{ name: 'Pale Pink', hex: '#FADADD' }, { name: 'Baby Blue', hex: '#89CFF0' }],
+        colors: {
+            classic: [{ name: 'Pale Pink', hex: '#FADADD' }, { name: 'Baby Blue', hex: '#89CFF0' }]
+        },
         sizes: ['NB', '3M', '6M', '12M']
     },
     {
@@ -198,7 +233,9 @@ export const products: Product[] = [
         isNew: true,
         rating: 4.7,
         reviews: 28,
-        colors: [{ name: 'Green', hex: '#008000' }],
+        colors: {
+            seasonal: [{ name: 'Green', hex: '#008000' }]
+        },
         sizes: ['2T', '3T', '4T', '5T']
     },
     {
@@ -210,7 +247,9 @@ export const products: Product[] = [
         image: 'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&q=80&w=1000',
         rating: 4.8,
         reviews: 35,
-        colors: [{ name: 'Rose', hex: '#FF007F' }, { name: 'Gold', hex: '#D4AF37' }],
+        colors: {
+            classic: [{ name: 'Rose', hex: '#FF007F' }, { name: 'Gold', hex: '#D4AF37' }]
+        },
         sizes: ['3T', '4T', '5T', '6T']
     },
     {
@@ -222,7 +261,9 @@ export const products: Product[] = [
         image: 'https://images.unsplash.com/photo-1519457431-75514e710079?auto=format&fit=crop&q=80&w=1000',
         rating: 4.6,
         reviews: 15,
-        colors: [{ name: 'Denim', hex: '#1560BD' }],
+        colors: {
+            classic: [{ name: 'Denim', hex: '#1560BD' }]
+        },
         sizes: ['2T', '4T', '6T']
     },
     {
@@ -234,7 +275,56 @@ export const products: Product[] = [
         image: 'https://images.unsplash.com/photo-1544146195-2d93e185c786?auto=format&fit=crop&q=80&w=1000',
         rating: 4.5,
         reviews: 60,
-        colors: [{ name: 'Multi', hex: '#FFB6C1' }],
+        colors: {
+            seasonal: [{ name: 'Multi', hex: '#FFB6C1' }]
+        },
         sizes: ['OS']
+    },
+    {
+        id: 'elbow-v-neck',
+        name: "Womens Elbow Sleeve V-Neck",
+        category: 'Women',
+        subCategory: 'Tops',
+        price: 25500,
+        image: "https://res.cloudinary.com/dnfbik3if/image/upload/v1770443016/pro_stuf7a.jpg",
+        additionalImages: [
+            "https://res.cloudinary.com/dnfbik3if/image/upload/v1770443016/pro_stuf7a.jpg",
+            "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1000",
+            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=1000",
+            "https://res.cloudinary.com/dnfbik3if/image/upload/v1770443930/Beige_White_and_Brown_Modern_Fashion_Facebook_Cover_on5b6y.jpg"
+        ],
+        description: "THE BEST-SELLING T-SHIRT, NOW IN A V-NECK. Our best-selling elbow sleeve tee—now with the timeless V-neckline you've been asking for. Made from the same ultra-soft, breathable premium fabric as our customer-favorite crew neck, this new style was created by popular demand. Designed for a relaxed yet refined drape, it's perfect for effortless layering or wearing solo. Thoughtfully crafted in Sri Lanka with sustainability in mind, this versatile staple is as comfortable as it is conscious.",
+        isBestSeller: true,
+        rating: 4.8,
+        reviews: 235,
+        colors: {
+            classic: [
+                { name: 'White', hex: '#FFFFFF' },
+                { name: 'Black', hex: '#000000' },
+                { name: 'Navy', hex: '#1B2631' },
+                { name: 'Charcoal', hex: '#2C3E50' },
+                { name: 'Slate', hex: '#34495E' },
+                { name: 'Grey', hex: '#7F8C8D' },
+                { name: 'Lavender', hex: '#D5D8DC' },
+                { name: 'Cloud', hex: '#F4F6F7' }
+            ],
+            seasonal: [
+                { name: 'Sky', hex: '#AED6F1' },
+                { name: 'Moss', hex: '#52BE80' },
+                { name: 'Rose', hex: '#EC7063' },
+                { name: 'Peach', hex: '#F5B041' },
+                { name: 'Plum', hex: '#8E44AD' },
+                { name: 'Sun', hex: '#F4D03F' },
+                { name: 'Crimson', hex: '#C0392B' }
+            ]
+        },
+        sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+        details: {
+            overview: "A timeless V-neck tee with elegant elbow-length sleeves, crafted for effortless layering or wearing solo. Pre-shrunk for a consistent fit. Family-made with care and attention to every stitch.",
+            sustainability: "Ethically produced in Sri Lanka using 100% locally sourced premium fabrics. Our facilities are solar-powered and we implement a zero-waste cutting policy to minimize environmental impact.",
+            fit: "Tailored with a contoured yet comfortable fit. McKenna is 5'9\" (measurements: 34\" 27\" 37\") and is wearing a size SMALL. If you prefer a more oversized look, we recommend sizing up one size.",
+            returns: "Enjoy free returns and exchanges within 30 days of purchase. We provide a pre-paid shipping label for all domestic orders to ensure a seamless experience."
+        }
     }
 ];
+
