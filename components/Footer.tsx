@@ -7,7 +7,7 @@ import { FaCcVisa, FaCcMastercard, FaCcAmex } from "react-icons/fa";
 const Footer = () => {
     return (
         <footer className="bg-gold-50/30 border-t-4 border-gold-500 pt-20 pb-10">
-            <div className="max-w-[1440px] mx-auto px-4 md:px-10">
+            <div className="w-full px-4 md:px-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-20">
                     {/* About Us */}
                     <div className="space-y-6">
@@ -16,9 +16,7 @@ const Footer = () => {
                         </h4>
                         <div className="space-y-4">
                             <p className="text-sm text-gray-500 leading-relaxed max-w-xs transition-colors hover:text-gray-700">
-                                DressCo is a proud Sri Lankan based company dedicated to crafting the finest
-                                ethical and sustainable Cloths. We combine heritage craftsmanship
-                                with modern design to bring you luxury essentials that last.
+                                DressCo was founded to redefine the fashion industry in Sri Lanka by creating ethically made luxury essentials. We are proud to present our range of Premium fabric Cloths, meticulously crafted for the conscious individual who values quality above all else.
                             </p>
                             <p className="text-sm text-gray-500 italic">
                                 From Our Island to Your Wardrobe!

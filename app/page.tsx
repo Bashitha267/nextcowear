@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Star, ChevronLeft, ChevronRight, Quote, Plus, Feather, Scissors, Leaf } from "lucide-react";
+import TestimonialsDrawer from "@/components/TestimonialsDrawer";
 
 export default function Home() {
   return (
     <div className="relative min-h-screen bg-white pt-20">
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden py-12 lg:py-0 bg-gold-50/40">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
+        <div className="w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10">
           <div className="order-2 lg:order-1">
             <span className="inline-block text-gold-600 font-medium tracking-[0.3em] uppercase mb-4 animate-in fade-in slide-in-from-bottom duration-700">
               Sri Lankan Heritage 2026
@@ -58,11 +59,14 @@ export default function Home() {
         <div className="absolute left-0 top-[20%] select-none pointer-events-none opacity-[0.03] text-[15vw] font-serif font-bold whitespace-nowrap text-gold-700">
           PREMIUM
         </div>
+
+        {/* Testimonials Drawer Trigger */}
+        <TestimonialsDrawer />
       </section>
 
       {/* Gender Selection Section */}
       <section className="py-12 bg-gold-50/20">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10 leading-none">
+        <div className="w-full px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10 leading-none">
           {/* Women's Card */}
           <div className="relative aspect-4/5 md:aspect-auto md:h-[80vh] overflow-hidden group border-2 border-gold-100/50 hover:border-gold-300 transition-colors duration-500">
             <Image
@@ -74,7 +78,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-500"></div>
             <div className="absolute bottom-12 left-8 md:left-12 right-8 text-white z-10">
               <span className="block text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase mb-4 text-gold-200">
-                100% Organic Cotton Cloths for Women
+                100% Premium Sri Lankan-Crafted and imported clothing for Women
               </span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider">
                 Sustainably Made In <br /> <span className="text-gold-300">Sri Lanka</span>
@@ -103,7 +107,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-500"></div>
             <div className="absolute bottom-12 left-8 md:left-12 right-8 text-white z-10">
               <span className="block text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase mb-4 text-gold-200">
-                100% Organic Cotton Cloths for Men
+                100% Premium Sri Lankan-Crafted and imported clothing for Men
               </span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider">
                 Expertly Crafted In <br /> <span className="text-gold-400">Sri Lanka</span>
@@ -132,7 +136,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-500"></div>
             <div className="absolute bottom-12 left-8 md:left-12 right-8 text-white z-10">
               <span className="block text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase mb-4 text-gold-200">
-                100% Premium Fabric Cloths for Kids
+                100% Premium Sri Lankan-Crafted and imported clothing for Kids
               </span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider">
                 Playfully Made In <br /> <span className="text-gold-400">Sri Lanka</span>
@@ -154,7 +158,7 @@ export default function Home() {
 
       {/* Best Selling Section */}
       <section className="py-20 bg-gold-50">
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
+        <div className="w-full px-4 md:px-8">
           <div className="text-center mb-16">
             <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-500 mb-6 block">
               Discover Our Best Selling Collection
@@ -351,7 +355,7 @@ export default function Home() {
       {/* Reviews Section */}
       <section className="py-20 bg-gold-100/30 border-t border-gold-200/40 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gold-500 rounded-full blur-sm opacity-20"></div>
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8">
+        <div className="w-full px-4 md:px-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
             <div>
@@ -398,7 +402,7 @@ export default function Home() {
                 </div>
                 <h3 className="font-serif text-lg mb-2 text-gray-900">The way it feels when wearing</h3>
                 <p className="text-sm text-gray-500 leading-relaxed mb-4 italic">
-                  "I know they are made of cotton but they feel like cashmere. I love mine and have already ordered again."
+                  "I know they are made of premium fabric but they feel like cashmere. I love mine and have already ordered again."
                 </p>
                 <span className="text-sm font-bold tracking-wider text-gray-900">LeighAnn C.</span>
               </div>
@@ -461,7 +465,7 @@ export default function Home() {
       {/* French Terry Section */}
       <section className="py-20 bg-gold-50/30 relative">
         <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-gold-300 to-transparent"></div>
-        <div className="max-w-[1440px] mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 leading-none">
+        <div className="w-full px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 gap-10 leading-none">
           {/* Women's Card */}
           <div className="relative aspect-4/5 md:aspect-auto md:h-[80vh] overflow-hidden group">
             <div className="flex w-full h-full">
@@ -522,7 +526,7 @@ export default function Home() {
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-500" />
             <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12 text-white">
               <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase mb-4 text-gold-300">
-                100% Organic Sri Lankan Cotton
+                100% Premium Sri Lankan Fabric
               </span>
               <h2 className="text-3xl md:text-4xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider max-w-sm">
                 Mens Inspired Sweatshirts & Shorts
@@ -544,7 +548,7 @@ export default function Home() {
         <div className="absolute top-0 left-0 w-full h-full opacity-[0.05] pointer-events-none">
 
         </div>
-        <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12 text-center relative z-10">
+        <div className="w-full px-4 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12 text-center relative z-10">
           <div className="flex flex-col items-center group">
             <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-lg border border-gold-100 group-hover:bg-gold-500 transition-all duration-500">
               <Feather className="text-gold-600 group-hover:text-white transition-colors" size={36} strokeWidth={1} />
@@ -569,11 +573,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why Sri Lankan Cotton Section */}
+      {/* Why Premium Fabric Section */}
       <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
         <Image
           src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443694/Brown_Minimalist_Fashion_Facebook_Cover_edhreh.jpg"
-          alt="Organic Cotton Background"
+          alt="Premium Fabric Background"
           fill
           className="object-cover opacity-90 brightness-50"
         />
@@ -583,8 +587,7 @@ export default function Home() {
           </h2>
           <p className="text-lg md:text-2xl font-light leading-relaxed mb-12 opacity-90">
             DressCo was founded to redefine the fashion industry in Sri Lanka by creating ethically
-            made luxury essentials. We are proud to present our range of 100% GOTS Certified
-            Organic Cotton Cloths, meticulously crafted for the conscious individual who
+            made luxury essentials. We are proud to present our range of Premium Fabrics, meticulously crafted for the conscious individual who
             values quality above all else.
           </p>
           <Link

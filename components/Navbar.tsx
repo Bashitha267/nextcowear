@@ -58,7 +58,7 @@ const Navbar = () => {
                 : "bg-white py-3 lg:py-4 border-t-4 border-t-gold-500 border-b border-b-gold-50"
                 }`}
         >
-            <div className="max-w-[1700px] mx-auto px-4 md:px-12 flex items-center h-full">
+            <div className="w-full px-4 md:px-12 flex items-center h-full">
 
                 <div className="flex-1 flex items-center justify-start relative">
                     {/* Mobile Menu Toggle */}
@@ -84,7 +84,7 @@ const Navbar = () => {
                             >
                                 <Link
                                     href={link.href}
-                                    className="text-[10px] xl:text-[11px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
+                                    className="text-[10px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
                                 >
                                     {link.name}
                                     {link.children && link.children.length > 0 && (
@@ -101,7 +101,7 @@ const Navbar = () => {
                                         <div className="flex flex-col space-y-5 border-l-2 border-gold-100 pl-5">
                                             <Link
                                                 href={link.href}
-                                                className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-gold-600 hover:text-gold-800 transition-colors"
+                                                className="text-[14px] font-extrabold tracking-[0.2em] uppercase text-gold-600 hover:text-gold-800 transition-colors"
                                             >
                                                 View All
                                             </Link>
@@ -109,7 +109,7 @@ const Navbar = () => {
                                                 <Link
                                                     key={sub}
                                                     href={`/collections?category=${link.name}&subcategory=${sub}`}
-                                                    className="text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-gold-600 transition-colors whitespace-nowrap"
+                                                    className="text-[13px] font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-gold-600 transition-colors whitespace-nowrap"
                                                 >
                                                     {sub}
                                                 </Link>
@@ -142,7 +142,7 @@ const Navbar = () => {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-[10px] xl:text-[11px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
+                                className="text-[10px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
                             >
                                 {link.name}
                             </Link>
@@ -151,16 +151,16 @@ const Navbar = () => {
 
                     <div className="flex items-center space-x-4 lg:space-x-7 relative z-50">
                         <button className="text-gray-900 hover:text-gold-600 transition-colors" title="Search">
-                            <Search size={21} strokeWidth={1} />
+                            <Search size={24} strokeWidth={1} />
                         </button>
                         <button className="text-gray-900 hover:text-gold-600 transition-all relative group/cart" title="Shopping Bag">
-                            <ShoppingBag size={21} strokeWidth={1} />
+                            <ShoppingBag size={24} strokeWidth={1} />
                             <span className="absolute -top-2 -right-2 bg-gold-600 text-white text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold shadow-sm group-hover/cart:scale-110 transition-transform">
                                 0
                             </span>
                         </button>
                         <button className="text-gray-900 hover:text-gold-600 transition-colors" title="Account">
-                            <User size={21} strokeWidth={1} />
+                            <User size={24} strokeWidth={1} />
                         </button>
                     </div>
                 </div>
