@@ -74,10 +74,11 @@ const Footer = () => {
                                 "Sustainable Living",
                                 "Terms & Privacy",
                                 "Accessibility Statement",
+                                "Admin Panel",
                             ].map((item) => (
                                 <li key={item}>
                                     <Link
-                                        href={`/${item.toLowerCase().replace(/\s+/g, "-")}`}
+                                        href={item === "Admin Panel" ? "/login" : `/${item.toLowerCase().replace(/\s+/g, "-")}`}
                                         className="text-sm text-gray-500 hover:text-gold-500 transition-colors font-medium"
                                     >
                                         {item}

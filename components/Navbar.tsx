@@ -84,7 +84,7 @@ const Navbar = () => {
                             >
                                 <Link
                                     href={link.href}
-                                    className="text-[10px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
+                                    className="text-[10px] xl:text-[12px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
                                 >
                                     {link.name}
                                     {link.children && link.children.length > 0 && (
@@ -142,7 +142,7 @@ const Navbar = () => {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-[10px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
+                                className="text-[10px] xl:text-[12px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
                             >
                                 {link.name}
                             </Link>

@@ -49,9 +49,13 @@ const ProductDetailsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white pt-32 pb-20">
+        <div className="min-h-screen bg-gradient-to-br mt-5 lg:mt-10 from-white via-gold-50/20 to-white pt-24 pb-20 font-sans relative overflow-hidden">
+            {/* Background Decorative Elements */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold-100/20 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gold-200/10 blur-[100px] rounded-full translate-y-1/3 -translate-x-1/4 pointer-events-none" />
+
             {/* Breadcrumbs */}
-            <div className="w-full px-4 md:px-10 mb-6">
+            <div className="max-w-7xl mx-auto px-4 md:px-10 mb-6 font-sans relative z-10">
                 <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold tracking-widest uppercase text-gray-400">
                     <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
                     <ChevronRight size={14} />
@@ -61,13 +65,13 @@ const ProductDetailsPage = () => {
                 </div>
             </div>
 
-            <main className="w-full px-4 md:px-10">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-stretch min-h-[75vh]">
+            <main className="max-w-7xl mx-auto px-4 md:px-10 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
                     {/* Left Column: Image Gallery */}
-                    <div className="lg:col-span-8 space-y-4">
+                    <div className="space-y-6">
                         {/* Main Image container */}
-                        <div className="relative aspect-[3/4.5] md:aspect-[3/4] bg-gray-50 overflow-hidden group border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="relative aspect-4/5 bg-gray-50 overflow-hidden group border border-gray-100 rounded-[2.5rem] shadow-sm">
                             <Image
                                 src={images[selectedImage]}
                                 alt={product.name}
@@ -81,12 +85,12 @@ const ProductDetailsPage = () => {
                         </div>
 
                         {/* Thumbnails Row */}
-                        <div className="grid grid-cols-4 gap-3 sm:gap-4 px-1">
+                        <div className="grid grid-cols-4 gap-4">
                             {images.map((img, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => setSelectedImage(idx)}
-                                    className={`relative aspect-square overflow-hidden rounded-xl border-2 transition-all ${selectedImage === idx ? 'border-gray-900 scale-95 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                    className={`relative aspect-square overflow-hidden rounded-2xl border-2 transition-all ${selectedImage === idx ? 'border-gray-900 scale-95 shadow-md' : 'border-transparent opacity-60 hover:opacity-100'}`}
                                 >
                                     <Image src={img} alt={`${product.name} thumbnail ${idx}`} fill className="object-cover" />
                                 </button>
@@ -95,7 +99,7 @@ const ProductDetailsPage = () => {
                     </div>
 
                     {/* Right Column: Information */}
-                    <div className="lg:col-span-4 flex flex-col justify-center space-y-10">
+                    <div className="flex flex-col justify-center space-y-10">
                         <div className="space-y-4">
                             <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-gray-900 tracking-tight leading-tight uppercase font-medium">{product.name}</h1>
                             <div className="flex flex-wrap items-center justify-between gap-4">

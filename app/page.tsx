@@ -40,7 +40,7 @@ export default function Home() {
             </div>
           </div>
           <div className="relative order-1 lg:order-2 animate-in fade-in zoom-in duration-1000">
-            <div className="relative w-full aspect-4/5 rounded-sm overflow-hidden border-12 border-gold-50">
+            <div className="relative w-full h-[80vh] rounded-sm overflow-hidden border-12 border-gold-50">
               <Image
                 src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770442924/tshirt_vp2ngs.jpg"
                 alt="Premium Cloth"

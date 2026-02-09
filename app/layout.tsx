@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Exquisite Cloths for the modern individual.",
 };
 
+import ConditionalLayout from "@/components/ConditionalLayout";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,9 +31,9 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${montserrat.variable} antialiased font-sans`}
       >
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <ConditionalLayout>
+          {children}
+        </ConditionalLayout>
       </body>
     </html>
   );
