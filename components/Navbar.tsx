@@ -43,10 +43,11 @@ const Navbar = () => {
             children: cat.subCategories
         })) as NavLink[]),
         // { name: "Sustainability", href: "/sustainability" },
-        { name: "Why Us", href: "/why-us" },
+
     ];
 
     const rightLinks: NavLink[] = [
+        { name: "Why Us", href: "/why-us" },
         { name: "Reviews", href: "/reviews" },
         { name: "Our Story", href: "/our-story" },
     ];
@@ -84,7 +85,7 @@ const Navbar = () => {
                             >
                                 <Link
                                     href={link.href}
-                                    className="text-[10px] xl:text-[12px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
+                                    className="text-[10px] md:text-[9px] lg:text-[8px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
                                 >
                                     {link.name}
                                     {link.children && link.children.length > 0 && (
@@ -142,7 +143,7 @@ const Navbar = () => {
                             <Link
                                 key={link.name}
                                 href={link.href}
-                                className="text-[10px] xl:text-[12px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
+                                className="text-[10px] md:text-[9px] lg:text-[8px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
                             >
                                 {link.name}
                             </Link>
@@ -169,7 +170,7 @@ const Navbar = () => {
                 {isMobileMenuOpen && (
                     <div className="lg:hidden absolute top-full left-[-16px] md:left-[-48px] w-[calc(100%+32px)] md:w-[calc(100%+96px)] bg-white border-t border-gold-100 shadow-2xl overflow-y-auto max-h-[85vh] animate-in fade-in slide-in-from-top duration-300 z-1000">
                         <div className="px-8 py-12 flex flex-col space-y-10 bg-white">
-                            {navLinks.map((link) => (
+                            {[...navLinks, ...rightLinks].map((link) => (
                                 <div key={link.name} className="flex flex-col">
                                     <div className="flex items-center justify-between">
                                         <Link
@@ -212,19 +213,6 @@ const Navbar = () => {
                                     )}
                                 </div>
                             ))}
-                            <div className="h-px bg-gold-50" />
-                            <div className="grid grid-cols-2 gap-8">
-                                {rightLinks.map((link) => (
-                                    <Link
-                                        key={link.name}
-                                        href={link.href}
-                                        className="text-[12px] font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-gold-600 text-center py-2 transition-colors"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                        {link.name}
-                                    </Link>
-                                ))}
-                            </div>
                         </div>
                     </div>
                 )}
