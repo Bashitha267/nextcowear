@@ -23,6 +23,7 @@ import { Product } from "@/lib/data";
 import TestimonialsDrawer from "@/components/TestimonialsDrawer";
 import { getProductById, getRelatedProducts } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
+import { toast } from "react-hot-toast";
 
 const ProductDetailsPage = () => {
     const params = useParams();
@@ -143,28 +144,37 @@ const ProductDetailsPage = () => {
                     {/* Right Column: Information */}
                     <div className="flex flex-col justify-center space-y-10">
                         <div className="space-y-4">
-                            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif text-gray-900 tracking-tight leading-tight uppercase font-medium">{product.name}</h1>
-                            <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div className="text-2xl md:text-3xl font-bold text-gray-900">
-                                    RS {product.price.toLocaleString()}
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="flex text-gold-500">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={16} className={i < Math.floor(product.rating) ? "fill-current" : "text-gray-200"} />
-                                        ))}
+                            <h1 className="text-xl md:text-4xl lg:text-5xl font-serif text-gray-900 tracking-tight leading-tight uppercase font-medium">{product.name}</h1>
+                            <div className="flex flex-col">
+                                <div className="flex flex-col items-start gap-1">
+                                    <div className="text-lg md:text-3xl font-bold text-gray-900 mt-2">
+                                        RS {product.price.toLocaleString()}
                                     </div>
-                                    <span className="text-sm font-bold text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gold-500 underline underline-offset-4 decoration-1" onClick={() => {
-                                        const el = document.getElementById('reviews');
-                                        el?.scrollIntoView({ behavior: 'smooth' });
-                                    }}>
-                                        ({product.reviews} Reviews)
-                                    </span>
+                                    {product.originalPrice && product.originalPrice > product.price && (
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs md:text-sm text-gray-400 font-medium">
+                                                Traditional retail price: <span className="line-through">RS {product.originalPrice.toLocaleString()}</span>
+                                            </span>
+                                            <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                                                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            {product.originalPrice && (
-                                <p className="text-sm text-gray-400 font-medium italic">Traditional retail price: RS {product.originalPrice.toLocaleString()}</p>
-                            )}
+                            <div className="flex items-center gap-3">
+                                <div className="flex text-gold-500">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} size={16} className={i < Math.floor(product.rating) ? "fill-current" : "text-gray-200"} />
+                                    ))}
+                                </div>
+                                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest cursor-pointer hover:text-gold-500 underline underline-offset-4 decoration-1" onClick={() => {
+                                    const el = document.getElementById('reviews');
+                                    el?.scrollIntoView({ behavior: 'smooth' });
+                                }}>
+                                    ({product.reviews} Reviews)
+                                </span>
+                            </div>
                         </div>
 
                         {/* Description */}
@@ -187,7 +197,7 @@ const ProductDetailsPage = () => {
                                             <button
                                                 key={color.name}
                                                 onClick={() => setSelectedColor(color.name)}
-                                                className={`group relative w-10 h-10 rounded-full flex items-center justify-center transition-all ${selectedColor === color.name ? 'ring-2 ring-gray-900 ring-offset-4 scale-110 shadow-lg' : 'hover:scale-110'}`}
+                                                className={`group relative w-8 h-8 rounded-full flex items-center justify-center transition-all ${selectedColor === color.name ? 'ring-2 ring-gray-900 ring-offset-4 scale-105 shadow-lg' : 'hover:scale-110'}`}
                                                 title={color.name}
                                             >
                                                 <div
@@ -277,13 +287,14 @@ const ProductDetailsPage = () => {
                                 <button
                                     onClick={() => {
                                         if (product.sizes.length > 0 && !selectedSize) {
-                                            alert("Please select a size");
+                                            toast.error("Please select a size");
                                             return;
                                         }
                                         setIsAdding(true);
                                         // Simulate a small delay for better UX
                                         setTimeout(() => {
                                             addToCart(product, quantity, selectedSize, selectedColor);
+                                            toast.success("Added to cart");
                                             setIsAdding(false);
                                         }, 500);
                                     }}
@@ -334,8 +345,7 @@ const ProductDetailsPage = () => {
                     ))}
                 </div>
 
-                {/* Reviews Section - Kept static/mock for now as fetching reviews per product might be a separate task. 
-                    However, let's update the rating/review count at least. */}
+                {/* Reviews Section */}
                 <section id="reviews" className="mt-32 pt-20 border-t border-gray-100">
                     <div className="text-center mb-20">
                         <div className="flex items-center justify-center gap-8 text-[11px] font-bold tracking-[0.4em] uppercase text-gray-500 mb-12">
@@ -349,7 +359,6 @@ const ProductDetailsPage = () => {
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 items-center w-full max-w-[1800px] mx-auto bg-gold-50/20 p-6 md:p-12 rounded-sm border border-gold-100 shadow-sm relative overflow-hidden">
-                            {/* ... (Kept existing visual elements) ... */}
                             {/* Stats */}
                             <div className="flex flex-col items-center gap-4">
                                 <span className="text-7xl font-light text-gray-900 leading-none">{product.rating}</span>
@@ -361,7 +370,7 @@ const ProductDetailsPage = () => {
                                 <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Based on {product.reviews} reviews</span>
                             </div>
 
-                            {/* Bars - Mocked distribution for now based on rating */}
+                            {/* Bars - Mocked distribution */}
                             <div className="space-y-3 flex-1 w-full max-w-xs mx-auto">
                                 {[
                                     { stars: 5, count: Math.round(product.reviews * 0.85), pct: '85%' },
@@ -396,98 +405,40 @@ const ProductDetailsPage = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Individual Reviews - Keeping static for now as DB doesn't have reviews table linked in schema snippet I saw earlier for frontend usage easily yet? 
-                        Wait, checking schema, there is NO reviews table in snippet I saw. Ah wait, I missed it? 
-                        Let's check schema snippet again. Reviews might be omitted or I didn't see.
-                        Actually, 'products' table has 'rating' and 'review_count' but I didn't see a 'reviews' table in the first 100-200 lines. 
-                        It might be there. For now, keep static mock reviews to avoid breakage. */}
-                    <div className="w-full max-w-[1800px] mx-auto space-y-16">
-                        {/* Static reviews content preserved for layout purposes */}
-                        {[
-                            {
-                                name: "Leslie A. us",
-                                date: "02/06/26",
-                                rating: 5,
-                                title: "Love the shirt!",
-                                content: "Ordering my third color today. The premium fabric feels incredible against the skin and the elbow length sleeves are so flattering.",
-                                response: "Hello Leslie! We are thrilled to hear that you love the shirt, and we truly appreciate you coming back for more colors. That means a lot to us. Thank you for your support!"
-                            },
-                            // ... other static reviews ...
-                        ].map((rev, i) => (
-                            <div key={i} className="border-b border-gray-100 pb-16 animate-in fade-in duration-1000">
-                                {/* ... contents ... */}
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-gold-50 border border-gold-200 rounded-full flex items-center justify-center text-gold-600 font-bold shadow-sm">
-                                            {rev.name.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-sm font-bold text-gray-900">{rev.name}</span>
-                                                <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider">
-                                                    <Check size={10} className="stroke-3" /> Verified Buyer
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span className="text-xs font-bold text-gray-400 tracking-widest">{rev.date}</span>
-                                </div>
-                                {/* ... rest of review item ... */}
-                                <div className="flex mb-4">
-                                    <div className="flex text-gray-900 gap-0.5">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={14} className="fill-current" />
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <h3 className="text-lg font-serif font-bold text-gray-900 mb-3 tracking-tight">{rev.title}</h3>
-                                <p className="text-sm text-gray-600 leading-relaxed mb-8 italic">"{rev.content}"</p>
-
-                                {rev.response && (
-                                    <div className="bg-gold-50/30 p-8 rounded-sm border-l-4 border-gold-400 mb-8 ml-4 md:ml-12 animate-in slide-in-from-left duration-700">
-                                        <div className="text-[10px] font-bold text-gold-600 uppercase tracking-[0.3em] mb-3">DressCo Response:</div>
-                                        <p className="text-sm text-gray-600 leading-relaxed italic">{rev.response}</p>
-                                    </div>
-                                )}
-                                {/* ... */}
-                            </div>
-                        ))}
-                    </div>
                 </section>
 
                 {/* You Might Also Like - Dynamic */}
                 {relatedProducts.length > 0 && (
                     <section className="mt-40">
                         <div className="text-center mb-16">
-                            <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gold-600 mb-4 block">Complete The Look</span>
-                            <h2 className="text-4xl md:text-5xl font-serif text-gray-900 tracking-tight leading-tight uppercase font-medium">YOU MIGHT ALSO LIKE</h2>
+                            <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gold-600 mb-4 block animate-in fade-in duration-700">Complete The Look</span>
+                            <h2 className="text-3xl md:text-4xl font-serif text-gray-900 tracking-tight mb-8">YOU MIGHT ALSO LIKE</h2>
                         </div>
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                             {relatedProducts.map((rel) => (
-                                <Link key={rel.id} href={`/product/${rel.id}`} className="group animate-in fade-in duration-700">
-                                    <div className="relative aspect-3/4 overflow-hidden mb-6 border border-gold-50 group-hover:border-gold-300 transition-all duration-500 rounded-sm shadow-sm group-hover:shadow-xl group-hover:-translate-y-2">
-                                        <Image src={rel.image} alt={rel.name} fill className="object-cover transition-transform duration-1000 group-hover:scale-110" />
-                                        <div className="absolute bottom-0 left-0 w-full translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                                            <div className="bg-white/95 backdrop-blur-md text-gray-900 py-4 text-[9px] font-extrabold tracking-widest uppercase text-center border-t border-gold-100 flex items-center justify-center gap-2 group/btn">
-                                                View Product <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-                                            </div>
-                                        </div>
+                                <Link key={rel.id} href={`/product/${rel.id}`} className="group block">
+                                    <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden mb-4 border border-gray-100 rounded-sm">
+                                        <Image
+                                            src={rel.image}
+                                            alt={rel.name}
+                                            fill
+                                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                        />
                                     </div>
                                     <div className="text-center">
-                                        <h3 className="text-[10px] font-extrabold tracking-widest uppercase text-gray-900 mb-2 truncate px-2">{rel.name}</h3>
-                                        <p className="text-sm font-bold text-gold-600">RS {rel.price.toLocaleString()}</p>
+                                        <h3 className="text-xs font-bold tracking-widest uppercase text-gray-900 mb-2 truncate group-hover:text-gold-600 transition-colors">{rel.name}</h3>
+                                        <p className="text-sm font-bold text-gray-900">RS {rel.price.toLocaleString()}</p>
                                     </div>
                                 </Link>
                             ))}
                         </div>
                     </section>
                 )}
+
+                <div className="absolute top-34 md:top-48 left-0 right-0 pointer-events-none">
+                    <TestimonialsDrawer />
+                </div>
             </main>
-            <div className=" absolute top-34 md:top-48 left-0 right-0">
-                <TestimonialsDrawer />
-            </div>
         </div>
     );
 };

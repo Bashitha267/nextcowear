@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -27,7 +27,7 @@ interface Category {
     subCategories: string[];
 }
 
-const CollectionsPage = () => {
+const CollectionsContent = () => {
     const searchParams = useSearchParams();
 
     // Data State
@@ -628,6 +628,18 @@ const CollectionsPage = () => {
                 </div>
             )}
         </div>
+    );
+};
+
+const CollectionsPage = () => {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-gold-200 border-t-gold-500 rounded-full animate-spin"></div>
+            </div>
+        }>
+            <CollectionsContent />
+        </Suspense>
     );
 };
 

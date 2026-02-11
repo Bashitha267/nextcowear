@@ -17,18 +17,22 @@ const CartDrawer = () => {
         setIsCartOpen
     } = useCart();
 
-    if (!isCartOpen) return null;
+    // if (!isCartOpen) return null; // Removed to allow exit animations if we were using AnimatePresence, but simple CSS logic needs rendering.
+    // Actually, for simple CSS transition without unmounting, we need to keep it mounted but hidden or translated off-screen.
+    // However, ConditionalLayout conditonally renders this. If we want animation, we should probably toggle visibility/transform instead of unmounting.
+
+    // Let's refactor to stay mounted but use visibility/transform
 
     return (
-        <div className="fixed inset-0 z-1000 flex justify-end">
+        <div className={`fixed inset-0 z-1000 flex justify-end transition-all duration-500 ${isCartOpen ? 'pointer-events-auto visible' : 'pointer-events-none invisible'}`}>
             {/* Overlay */}
             <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
+                className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500 ${isCartOpen ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => setIsCartOpen(false)}
             />
 
             {/* Drawer */}
-            <div className="relative w-full max-w-md bg-white shadow-2xl flex flex-col h-full animate-in slide-in-from-right duration-300">
+            <div className={`relative w-full max-w-md bg-white shadow-2xl flex flex-col h-full transform transition-transform duration-500 ease-in-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                 {/* Header */}
                 <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white z-10">
                     <div className="flex items-center gap-3">

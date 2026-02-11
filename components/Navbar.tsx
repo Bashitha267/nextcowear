@@ -26,6 +26,7 @@ const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+    const [isAnimating, setIsAnimating] = useState(false);
 
     const [categories, setCategories] = useState<{ name: string, subCategories: string[] }[]>([]);
     const { totalItems, setIsCartOpen } = useCart();
@@ -47,6 +48,14 @@ const Navbar = () => {
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    useEffect(() => {
+        if (totalItems > 0) {
+            setIsAnimating(true);
+            const timer = setTimeout(() => setIsAnimating(false), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [totalItems]);
 
     const navLinks: NavLink[] = [
         { name: "Home", href: "/" },
@@ -175,7 +184,7 @@ const Navbar = () => {
                         >
                             <ShoppingBag size={24} strokeWidth={1} />
                             {totalItems > 0 && (
-                                <span className="absolute -top-2 -right-2 bg-gold-600 text-white text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold shadow-sm group-hover/cart:scale-110 transition-transform">
+                                <span className={`absolute -top-2 -right-2 bg-gold-600 text-white text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold shadow-sm group-hover/cart:scale-110 transition-transform ${isAnimating ? 'animate-bounce' : ''}`}>
                                     {totalItems}
                                 </span>
                             )}
