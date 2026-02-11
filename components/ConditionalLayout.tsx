@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
 
 export default function ConditionalLayout({
     children,
@@ -16,6 +17,7 @@ export default function ConditionalLayout({
         <>
             {!isAdminPath && <Navbar />}
             <main>{children}</main>
+            {!isAdminPath && <CartDrawer />}
             {!isAdminPath && <Footer />}
         </>
     );

@@ -130,12 +130,12 @@ CREATE INDEX idx_sizes_active ON sizes(is_active, display_order);
 CREATE TABLE products (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
-  slug TEXT NOT NULL UNIQUE,
+ 
   description TEXT,
   main_category_id UUID REFERENCES main_categories(id) ON DELETE SET NULL,
   sub_category_id UUID REFERENCES sub_categories(id) ON DELETE SET NULL,
   regular_price DECIMAL(10,2) NOT NULL,
-  oversized_price DECIMAL(10,2),
+ 
   sale_price DECIMAL(10,2),
   sku TEXT UNIQUE,
   stock_quantity INTEGER DEFAULT 0,
@@ -143,16 +143,17 @@ CREATE TABLE products (
   is_new_arrival BOOLEAN DEFAULT false,
   is_featured BOOLEAN DEFAULT false,
   is_active BOOLEAN DEFAULT true,
-  meta_title TEXT,
-  meta_description TEXT,
+
   rating DECIMAL(3,2) DEFAULT 0.00,
   review_count INTEGER DEFAULT 0,
   view_count INTEGER DEFAULT 0,
+  main_image TEXT,
+  additional_images TEXT[],
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_products_slug ON products(slug);
+-- CREATE INDEX idx_products_slug ON products(slug); -- Slug removed for simplicity
 CREATE INDEX idx_products_category ON products(main_category_id, sub_category_id);
 CREATE INDEX idx_products_active ON products(is_active);
 CREATE INDEX idx_products_bestseller ON products(is_best_seller) WHERE is_best_seller = true;

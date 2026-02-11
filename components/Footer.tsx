@@ -1,10 +1,40 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 // import { Visa, Mastercard, Amex } from 'react-svg-credit-card-payment-icons';
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, Leaf } from "lucide-react";
 import { FaCcVisa, FaCcMastercard, FaCcAmex } from "react-icons/fa";
+
 const Footer = () => {
+    const [categories, setCategories] = useState<{ name: string, subCategories: string[] }[]>([]);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const { getCategories } = await import('@/lib/api');
+            const data = await getCategories();
+            if (data) {
+                setCategories(data);
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    // Flatten categories for shop links or just show main ones plus a few subs
+    // For footer, usually we show main categories and maybe "All"
+    const shopLinks = [
+        ...categories.flatMap(cat => [
+            { name: `${cat.name} Collection`, href: `/collections?category=${cat.name}` },
+            // Add first 2 subcategories for each main category if you want detailed footer
+            ...cat.subCategories.slice(0, 2).map(sub => ({
+                name: `${cat.name} ${sub}`,
+                href: `/collections?category=${cat.name}&sub=${sub}`
+            }))
+        ]),
+        { name: "All Collections", href: "/collections" }
+    ];
+
     return (
         <footer className="bg-gold-50/30 border-t-4 border-gold-500 pt-20 pb-10">
             <div className=" w-full  px-4 md:px-16">
@@ -36,21 +66,11 @@ const Footer = () => {
                             Shop
                         </h4>
                         <ul className="space-y-4">
-                            {[
-                                { name: "Womens Short Sleeve", href: "/women/short-sleeve" },
-                                { name: "Womens Long Sleeve", href: "/women/long-sleeve" },
-                                { name: "Womens French Terry", href: "/women/french-terry" },
-                                { name: "Mens Short Sleeve", href: "/men/short-sleeve" },
-                                { name: "Mens Long Sleeve", href: "/men/long-sleeve" },
-                                { name: "Mens French Terry", href: "/men/french-terry" },
-                                { name: "Kids Collection", href: "/kids" },
-                                { name: "Kids French Terry", href: "/kids/french-terry" },
-                                { name: "All Collections", href: "/collections" },
-                            ].map((link) => (
+                            {shopLinks.map((link) => (
                                 <li key={link.name}>
                                     <Link
                                         href={link.href}
-                                        className="text-sm text-gray-500 hover:text-gold-500 transition-colors font-medium"
+                                        className="text-sm text-gray-500 hover:text-gold-500 transition-colors font-medium capitalize"
                                     >
                                         {link.name}
                                     </Link>

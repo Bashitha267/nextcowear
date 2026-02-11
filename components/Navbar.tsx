@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Search, ShoppingBag, User, Menu, X, ChevronDown } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 import { CATEGORIES } from "@/lib/data";
 
 /**
@@ -26,7 +27,20 @@ const Navbar = () => {
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
 
+    const [categories, setCategories] = useState<{ name: string, subCategories: string[] }[]>([]);
+    const { totalItems, setIsCartOpen } = useCart();
+
     useEffect(() => {
+        const fetchCategories = async () => {
+            // Dynamic import to avoid server-side execution issues if any, though api.ts is isomorphic
+            const { getCategories } = await import('@/lib/api');
+            const data = await getCategories();
+            if (data) {
+                setCategories(data);
+            }
+        };
+        fetchCategories();
+
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
         };
@@ -37,7 +51,7 @@ const Navbar = () => {
     const navLinks: NavLink[] = [
         { name: "Home", href: "/" },
         { name: "Collections", href: "/collections" },
-        ...(CATEGORIES.map(cat => ({
+        ...(categories.map(cat => ({
             name: cat.name,
             href: `/collections?category=${cat.name}`,
             children: cat.subCategories
@@ -109,7 +123,7 @@ const Navbar = () => {
                                             {link.children.map((sub: string) => (
                                                 <Link
                                                     key={sub}
-                                                    href={`/collections?category=${link.name}&subcategory=${sub}`}
+                                                    href={`/collections?category=${link.name}&sub=${sub}`}
                                                     className="text-[13px] font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-gold-600 transition-colors whitespace-nowrap"
                                                 >
                                                     {sub}
@@ -154,11 +168,17 @@ const Navbar = () => {
                         <button className="text-gray-900 hover:text-gold-600 transition-colors" title="Search">
                             <Search size={24} strokeWidth={1} />
                         </button>
-                        <button className="text-gray-900 hover:text-gold-600 transition-all relative group/cart" title="Shopping Bag">
+                        <button
+                            className="text-gray-900 hover:text-gold-600 transition-all relative group/cart"
+                            title="Shopping Bag"
+                            onClick={() => setIsCartOpen(true)}
+                        >
                             <ShoppingBag size={24} strokeWidth={1} />
-                            <span className="absolute -top-2 -right-2 bg-gold-600 text-white text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold shadow-sm group-hover/cart:scale-110 transition-transform">
-                                0
-                            </span>
+                            {totalItems > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-gold-600 text-white text-[8px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold shadow-sm group-hover/cart:scale-110 transition-transform">
+                                    {totalItems}
+                                </span>
+                            )}
                         </button>
                         <button className="text-gray-900 hover:text-gold-600 transition-colors" title="Account">
                             <User size={24} strokeWidth={1} />
@@ -202,7 +222,7 @@ const Navbar = () => {
                                             {link.children.map((sub: string) => (
                                                 <Link
                                                     key={sub}
-                                                    href={`/collections?category=${link.name}&subcategory=${sub}`}
+                                                    href={`/collections?category=${link.name}&sub=${sub}`}
                                                     className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400"
                                                     onClick={() => setIsMobileMenuOpen(false)}
                                                 >

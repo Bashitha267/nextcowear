@@ -1,10 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
-import ImageUploader from '@/components/admin/ImageUploader';
+import { supabase } from '@/lib/supabase';
+import { toast } from 'react-hot-toast';
+import { Check } from 'lucide-react';
+
+interface Color {
+    id: string;
+    name: string;
+    hex_value: string;
+}
+
+interface Size {
+    id: string;
+    name: string;
+}
+
+interface MainCategory {
+    id: string;
+    name: string;
+}
+
+interface SubCategory {
+    id: string;
+    name: string;
+    main_category_id: string;
+}
 
 export default function NewProductPage() {
     const router = useRouter();
@@ -25,6 +49,58 @@ export default function NewProductPage() {
         metaTitle: '',
         metaDescription: '',
     });
+
+    const [availableColors, setAvailableColors] = useState<Color[]>([]);
+    const [availableSizes, setAvailableSizes] = useState<Size[]>([]);
+    const [selectedColors, setSelectedColors] = useState<string[]>([]);
+    const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+
+    const [mainCategories, setMainCategories] = useState<MainCategory[]>([]);
+    const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+    const [filteredSubCategories, setFilteredSubCategories] = useState<SubCategory[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [colorsRes, sizesRes, mainRes, subRes] = await Promise.all([
+                    supabase.from('colors').select('*').order('display_order'),
+                    supabase.from('sizes').select('*').order('display_order'),
+                    supabase.from('main_categories').select('*').order('display_order'),
+                    supabase.from('sub_categories').select('*').order('display_order'),
+                ]);
+
+                if (colorsRes.data) setAvailableColors(colorsRes.data);
+                if (sizesRes.data) setAvailableSizes(sizesRes.data);
+                if (mainRes.data) setMainCategories(mainRes.data);
+                if (subRes.data) setSubCategories(subRes.data);
+            } catch (error) {
+                console.error('Error fetching initial data:', error);
+                toast.error('Failed to load form data');
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        if (formData.mainCategory) {
+            setFilteredSubCategories(subCategories.filter(s => s.main_category_id === formData.mainCategory));
+        } else {
+            setFilteredSubCategories([]);
+        }
+    }, [formData.mainCategory, subCategories]);
+
+    const toggleColor = (id: string) => {
+        setSelectedColors(prev =>
+            prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSize = (id: string) => {
+        setSelectedSizes(prev =>
+            prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+        );
+    };
     const [images, setImages] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -33,17 +109,53 @@ export default function NewProductPage() {
         setLoading(true);
 
         try {
-            // TODO: Implement API call to save product
-            console.log('Product data:', { ...formData, images });
+            // 1. Insert Product
+            const { data: product, error: productError } = await supabase
+                .from('products')
+                .insert([{
+                    name: formData.name,
+                    description: formData.description,
+                    sku: formData.sku,
+                    regular_price: parseFloat(formData.regularPrice),
+                    sale_price: formData.salePrice ? parseFloat(formData.salePrice) : null,
+                    main_category_id: formData.mainCategory || null,
+                    sub_category_id: formData.subCategory || null,
+                    stock_quantity: parseInt(formData.stockQuantity) || 0,
+                    is_best_seller: formData.isBestSeller,
+                    is_new_arrival: formData.isNewArrival,
+                    is_featured: formData.isFeatured,
+                    is_active: formData.isActive
+                }])
+                .select()
+                .single();
 
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (productError) throw productError;
 
-            alert('Product created successfully!');
+            // 2. Insert Colors
+            if (selectedColors.length > 0) {
+                const colorsToInsert = selectedColors.map(colorId => ({
+                    product_id: product.id,
+                    color_id: colorId
+                }));
+                const { error: colorError } = await supabase.from('product_colors').insert(colorsToInsert);
+                if (colorError) throw colorError;
+            }
+
+            // 3. Insert Sizes
+            if (selectedSizes.length > 0) {
+                const sizesToInsert = selectedSizes.map(sizeId => ({
+                    product_id: product.id,
+                    size_id: sizeId
+                }));
+                const { error: sizeError } = await supabase.from('product_sizes').insert(sizesToInsert);
+                if (sizeError) throw sizeError;
+            }
+
+            toast.success('Product created successfully!');
             router.push('/admin/products');
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error creating product:', error);
-            alert('Failed to create product');
+            toast.error(error.message || 'Failed to create product');
         } finally {
             setLoading(false);
         }
@@ -187,11 +299,76 @@ export default function NewProductPage() {
                             </div>
                         </div>
 
-                        {/* Images */}
+                        {/* Colors & Sizes */}
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h2 className="text-lg font-semibold text-gray-900 mb-6">Attributes</h2>
+
+                            <div className="space-y-8">
+                                {/* Colors */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-4">
+                                        Available Colors
+                                    </label>
+                                    <div className="flex flex-wrap gap-4">
+                                        {availableColors.map(color => (
+                                            <button
+                                                key={color.id}
+                                                type="button"
+                                                onClick={() => toggleColor(color.id)}
+                                                className="group flex flex-col items-center gap-2"
+                                            >
+                                                <div
+                                                    className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center relative ${selectedColors.includes(color.id)
+                                                        ? 'border-gold-500 scale-110 shadow-md'
+                                                        : 'border-transparent hover:border-gray-300'
+                                                        }`}
+                                                    style={{ backgroundColor: color.hex_value }}
+                                                >
+                                                    {selectedColors.includes(color.id) && (
+                                                        <Check className={`w-5 h-5 ${
+                                                            // Determine if white or black icon is better based on hex
+                                                            color.hex_value.toLowerCase() === '#ffffff' ? 'text-black' : 'text-white'
+                                                            }`} />
+                                                    )}
+                                                </div>
+                                                <span className={`text-xs font-medium transition-colors ${selectedColors.includes(color.id) ? 'text-gold-600' : 'text-gray-500 group-hover:text-gray-900'
+                                                    }`}>
+                                                    {color.name}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Sizes */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-4">
+                                        Available Sizes
+                                    </label>
+                                    <div className="flex flex-wrap gap-3">
+                                        {availableSizes.map(size => (
+                                            <button
+                                                key={size.id}
+                                                type="button"
+                                                onClick={() => toggleSize(size.id)}
+                                                className={`min-w-[48px] h-12 px-4 rounded-lg border-2 font-bold transition-all ${selectedSizes.includes(size.id)
+                                                    ? 'bg-gold-500 border-gold-500 text-white shadow-md'
+                                                    : 'bg-white border-gray-200 text-gray-600 hover:border-gold-300 hover:text-gold-600'
+                                                    }`}
+                                            >
+                                                {size.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Images */}
+                        {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                             <h2 className="text-lg font-semibold text-gray-900 mb-4">Product Images</h2>
                             <ImageUploader onUpload={setImages} maxImages={5} />
-                        </div>
+                        </div> */}
 
                         {/* SEO */}
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -251,9 +428,9 @@ export default function NewProductPage() {
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
                                     >
                                         <option value="">Select category</option>
-                                        <option value="men">Men</option>
-                                        <option value="women">Women</option>
-                                        <option value="kids">Kids</option>
+                                        {mainCategories.map(cat => (
+                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -266,12 +443,13 @@ export default function NewProductPage() {
                                         name="subCategory"
                                         value={formData.subCategory}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none disabled:bg-gray-50 disabled:cursor-not-allowed"
+                                        disabled={!formData.mainCategory}
                                     >
                                         <option value="">Select sub category</option>
-                                        <option value="tshirts">T-Shirts</option>
-                                        <option value="pants">Pants</option>
-                                        <option value="hoodies">Hoodies</option>
+                                        {filteredSubCategories.map(sub => (
+                                            <option key={sub.id} value={sub.id}>{sub.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>

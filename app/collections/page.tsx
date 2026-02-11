@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
     ChevronDown,
     ChevronUp,
@@ -17,23 +18,89 @@ import {
     SlidersHorizontal,
     ArrowRight
 } from "lucide-react";
-import { products, CATEGORIES, Product } from "@/lib/data";
+import { Product } from "@/lib/data"; // Keep Product type if still used
+import { getProducts, getCategories, getFilterOptions } from '@/lib/api';
+
+// Define Category type if not already defined elsewhere
+interface Category {
+    name: string;
+    subCategories: string[];
+}
 
 const CollectionsPage = () => {
-    // State for filters
+    const searchParams = useSearchParams();
+
+    // Data State
+    const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [filterOptions, setFilterOptions] = useState<{ colors: { name: string, hex_value: string }[], sizes: string[] }>({ colors: [], sizes: [] });
+    const [loading, setLoading] = useState(true);
+
+    // Filters State
     const [selectedCategory, setSelectedCategory] = useState<string>("All");
     const [selectedSubCategory, setSelectedSubCategory] = useState<string>("All");
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
     const [sortBy, setSortBy] = useState<string>("recommended");
+    const [selectedColors, setSelectedColors] = useState<string[]>([]);
+    const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+
+    // UI State
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const productsPerPage = 9;
+
+    // Fetch Initial Data
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const { getProducts, getCategories, getFilterOptions } = await import('@/lib/api');
+                const [productsData, categoriesData, optionsData] = await Promise.all([
+                    getProducts(),
+                    getCategories(),
+                    getFilterOptions()
+                ]);
+
+                setProducts(productsData);
+                setCategories(categoriesData);
+                setFilterOptions(optionsData);
+            } catch (error) {
+                console.error("Failed to fetch collections data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    // Handle initial filters from URL
+    useEffect(() => {
+        if (categories.length > 0) {
+            const category = searchParams.get('category');
+            const sub = searchParams.get('sub');
+
+            if (category) {
+                const matchedCat = categories.find(c => c.name.toLowerCase() === category.toLowerCase())?.name;
+                if (matchedCat) {
+                    setSelectedCategory(matchedCat);
+                    if (sub) {
+                        const matchedSub = categories.find(c => c.name === matchedCat)?.subCategories.find(s => s.toLowerCase() === sub.toLowerCase());
+                        if (matchedSub) {
+                            setSelectedSubCategory(matchedSub);
+                        }
+                    }
+                }
+            }
+        }
+    }, [searchParams, categories]);
 
     // Accordion state for filters
     const [expandedFilters, setExpandedFilters] = useState({
         categories: true,
         price: true,
         sort: true,
+        colors: true,
+        sizes: true
     });
 
     const toggleFilter = (key: keyof typeof expandedFilters) => {
@@ -53,6 +120,17 @@ const CollectionsPage = () => {
         }
 
         result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
+
+        if (selectedColors.length > 0) {
+            result = result.filter(p =>
+                p.colors.classic?.some(c => selectedColors.includes(c.name)) ||
+                p.colors.seasonal?.some(c => selectedColors.includes(c.name))
+            );
+        }
+
+        if (selectedSizes.length > 0) {
+            result = result.filter(p => p.sizes.some(s => selectedSizes.includes(s)));
+        }
 
         // Sorting
         switch (sortBy) {
@@ -74,7 +152,7 @@ const CollectionsPage = () => {
         }
 
         return result;
-    }, [selectedCategory, selectedSubCategory, priceRange, sortBy]);
+    }, [selectedCategory, selectedSubCategory, priceRange, sortBy, selectedColors, selectedSizes, products]);
 
     // Pagination
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
@@ -82,6 +160,20 @@ const CollectionsPage = () => {
         (currentPage - 1) * productsPerPage,
         currentPage * productsPerPage
     );
+
+    const toggleColor = (colorName: string) => {
+        setSelectedColors(prev =>
+            prev.includes(colorName) ? prev.filter(c => c !== colorName) : [...prev, colorName]
+        );
+        setCurrentPage(1);
+    };
+
+    const toggleSize = (sizeName: string) => {
+        setSelectedSizes(prev =>
+            prev.includes(sizeName) ? prev.filter(s => s !== sizeName) : [...prev, sizeName]
+        );
+        setCurrentPage(1);
+    };
 
     return (
         <div className="min-h-screen bg-[#FCF9F2] pt-20 lg:pt-26 pb-20">
@@ -143,7 +235,7 @@ const CollectionsPage = () => {
                             </button>
                             {expandedFilters.categories && (
                                 <div className="space-y-6">
-                                    {CATEGORIES.map((cat) => (
+                                    {categories.map((cat) => (
                                         <div key={cat.name} className="animate-in fade-in duration-300">
                                             <button
                                                 onClick={() => {
@@ -428,7 +520,7 @@ const CollectionsPage = () => {
             {/* Mobile Filter Drawer (Enhanced Smooth Entrance from Left) */}
             {isFilterOpen && (
                 <div
-                    className="fixed inset-0 z-2000 bg-black/70 backdrop-blur-md lg:hidden animate-in fade-in duration-500 cursor-pointer ease-in-out"
+                    className="fixed inset-0 z-[2000] bg-black/70 backdrop-blur-md lg:hidden animate-in fade-in duration-500 cursor-pointer ease-in-out"
                     onClick={() => setIsFilterOpen(false)}
                 >
                     <div
@@ -452,7 +544,7 @@ const CollectionsPage = () => {
                                     Category
                                 </h3>
                                 <div className="space-y-8">
-                                    {CATEGORIES.map((cat) => (
+                                    {categories.map((cat) => (
                                         <div key={cat.name} className="animate-in fade-in duration-300">
                                             <button
                                                 onClick={() => {

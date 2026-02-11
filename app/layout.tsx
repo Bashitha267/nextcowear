@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import ConditionalLayout from "@/components/ConditionalLayout";
+import { CartProvider } from "@/contexts/CartContext";
 
 export default function RootLayout({
   children,
@@ -31,9 +32,11 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${montserrat.variable} antialiased font-sans`}
       >
-        <ConditionalLayout>
-          {children}
-        </ConditionalLayout>
+        <CartProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </CartProvider>
       </body>
     </html>
   );
