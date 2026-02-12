@@ -16,7 +16,7 @@ interface Message {
 }
 
 export default function ChatWidget() {
-    const { user } = useAuth();
+    const { user, setIsLoginModalOpen } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
@@ -192,7 +192,7 @@ export default function ChatWidget() {
                                 <h4 className="text-gray-900 font-bold text-sm uppercase tracking-widest mb-2">Member Chat</h4>
                                 <p className="text-xs text-gray-500 leading-relaxed mb-6">Please sign in to your account to start a conversation with our support team.</p>
                                 <button
-                                    onClick={() => window.location.href = '/login'}
+                                    onClick={() => setIsLoginModalOpen(true)}
                                     className="px-8 py-3 bg-gray-900 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-gold-600 transition-all shadow-lg active:scale-95"
                                 >
                                     Sign In to Chat

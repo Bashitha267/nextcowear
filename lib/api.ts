@@ -250,7 +250,7 @@ export async function getSiteReviews() {
 
 // Function to fetch featured site reviews
 export async function getFeaturedReviews(limit: number = 3) {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
         .from('site_reviews')
         .select('*')
         .eq('is_approved', true)
@@ -262,6 +262,23 @@ export async function getFeaturedReviews(limit: number = 3) {
         console.error('Error fetching featured site reviews:', error);
         return [];
     }
+
+    // Fallback to most recent approved site reviews if no featured ones exist
+    if (!data || data.length === 0) {
+        const { data: fallbackData, error: fallbackError } = await supabase
+            .from('site_reviews')
+            .select('*')
+            .eq('is_approved', true)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+
+        if (fallbackError) {
+            console.error('Error fetching site reviews fallback:', fallbackError);
+            return [];
+        }
+        return fallbackData || [];
+    }
+
     return data;
 }
 

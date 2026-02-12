@@ -22,6 +22,8 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     signup: (data: any) => Promise<void>;
     logout: () => void;
+    isLoginModalOpen: boolean;
+    setIsLoginModalOpen: (isOpen: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,11 +33,14 @@ const AuthContext = createContext<AuthContextType>({
     login: async () => { },
     signup: async () => { },
     logout: () => { },
+    isLoginModalOpen: false,
+    setIsLoginModalOpen: () => { },
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -186,7 +191,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             isAdmin: user?.role === 'admin',
             login,
             signup,
-            logout
+            logout,
+            isLoginModalOpen,
+            setIsLoginModalOpen
         }}>
             {children}
         </AuthContext.Provider>

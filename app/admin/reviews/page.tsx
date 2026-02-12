@@ -93,6 +93,21 @@ export default function ReviewsPage() {
         }
     };
 
+    const handleToggleFeature = async (id: string, currentStatus: boolean) => {
+        try {
+            const { error } = await supabase
+                .from('site_reviews')
+                .update({ is_featured: !currentStatus })
+                .eq('id', id);
+
+            if (error) throw error;
+            toast.success(currentStatus ? 'Removed from featured' : 'Added to featured!');
+            fetchAllReviews();
+        } catch (error) {
+            toast.error('Failed to update featured status');
+        }
+    };
+
     const handleDelete = async (type: 'site' | 'product', id: string) => {
         if (!window.confirm('Are you sure you want to delete this review Permanently?')) return;
         try {
@@ -293,9 +308,20 @@ export default function ReviewsPage() {
                                     {review.is_approved ? 'Delete' : 'Reject'}
                                 </button>
                                 {review.is_approved && (
-                                    <div className="hidden md:flex items-center justify-center gap-1 text-green-600 bg-green-50 py-1.5 rounded-lg">
-                                        <CheckCircle2 className="w-4 h-4" />
-                                        <span className="text-[10px] font-bold uppercase">Approved</span>
+                                    <div className="hidden md:flex flex-col gap-1 w-full">
+                                        <div className="flex items-center justify-center gap-1 text-green-600 bg-green-50 py-1.5 rounded-lg">
+                                            <CheckCircle2 className="w-4 h-4" />
+                                            <span className="text-[10px] font-bold uppercase">Approved</span>
+                                        </div>
+                                        {review.type === 'site' && (
+                                            <button
+                                                onClick={() => handleToggleFeature(review.id, review.is_featured)}
+                                                className={`flex items-center justify-center gap-2 py-1.5 rounded-lg border-2 transition-all ${review.is_featured ? 'bg-gold-500 border-gold-500 text-white' : 'border-gold-500 text-gold-600 hover:bg-gold-50'}`}
+                                            >
+                                                <Star className={`w-3 h-3 ${review.is_featured ? 'fill-white' : ''}`} />
+                                                <span className="text-[10px] font-bold uppercase">{review.is_featured ? 'Featured' : 'Feature'}</span>
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>

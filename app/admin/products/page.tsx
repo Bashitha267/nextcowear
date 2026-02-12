@@ -31,6 +31,7 @@ interface Product {
     is_new_arrival: boolean;
     is_featured: boolean;
     is_active: boolean;
+    rating: number;
     main_image?: string;
     additional_images?: string[];
 }
@@ -76,6 +77,7 @@ export default function ProductsPage() {
         is_new_arrival: false,
         is_featured: false,
         is_active: true,
+        rating: 5,
         main_image: '',
         additional_images: []
     });
@@ -216,7 +218,12 @@ export default function ProductsPage() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
-        const newValue = type === 'number' ? parseFloat(value) || 0 : value;
+        let newValue: any = value;
+
+        if (type === 'number') {
+            newValue = value === '' ? 0 : parseFloat(value);
+            if (isNaN(newValue)) newValue = 0;
+        }
 
         setFormData(prev => {
             const updated = { ...prev, [name]: newValue };
@@ -263,6 +270,7 @@ export default function ProductsPage() {
             name: '', description: '', sku: '', main_category_id: '', sub_category_id: '',
             regular_price: 0, sale_price: 0, stock_quantity: 0,
             is_best_seller: false, is_new_arrival: false, is_featured: false, is_active: true,
+            rating: 5,
             main_image: '', additional_images: []
         });
         setSelectedColors([]);
@@ -441,7 +449,26 @@ export default function ProductsPage() {
                                         <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">NEW</span>
                                     )}
                                 </div>
-                                <div className="absolute top-2 right-2 flex gap-1">
+                                <div className="absolute top-2 right-2 flex flex-col items-end gap-1">
+                                    {product.is_active && (
+                                        <div className="flex items-center gap-0.5 bg-black/50 backdrop-blur-md px-2 py-1 rounded-md">
+                                            {[...Array(5)].map((_, i) => (
+                                                <svg
+                                                    key={i}
+                                                    className={`w-3 h-3 ${i < (product.rating || 5) ? 'text-gold-400 fill-gold-400' : 'text-gray-400'}`}
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                >
+                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                </svg>
+                                            ))}
+                                        </div>
+                                    )}
                                     {!product.is_active && (
                                         <span className="bg-gray-800 text-white text-[10px] font-bold px-2 py-0.5 rounded opacity-80 shadow-sm">INACTIVE</span>
                                     )}
@@ -674,11 +701,23 @@ export default function ProductsPage() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Regular Price *</label>
-                                            <input type="number" name="regular_price" required value={formData.regular_price} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                                            <input
+                                                type="number" name="regular_price" required
+                                                value={formData.regular_price || ''}
+                                                onChange={handleInputChange}
+                                                onFocus={(e) => e.target.select()}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500"
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">Sale Price</label>
-                                            <input type="number" name="sale_price" value={formData.sale_price} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                                            <input
+                                                type="number" name="sale_price"
+                                                value={formData.sale_price || ''}
+                                                onChange={handleInputChange}
+                                                onFocus={(e) => e.target.select()}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500"
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -686,7 +725,13 @@ export default function ProductsPage() {
                                     <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Inventory</h3>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity *</label>
-                                        <input type="number" name="stock_quantity" required value={formData.stock_quantity} onChange={handleInputChange} className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500" />
+                                        <input
+                                            type="number" name="stock_quantity" required
+                                            value={formData.stock_quantity || ''}
+                                            onChange={handleInputChange}
+                                            onFocus={(e) => e.target.select()}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-gold-500"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -708,6 +753,40 @@ export default function ProductsPage() {
                                             {item.label}
                                         </button>
                                     ))}
+                                </div>
+                            </div>
+
+                            {/* Product Rating */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Product Rating</h3>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium text-gray-700">Select Rating</label>
+                                    <div className="flex gap-2">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                key={star}
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                                                className={`p-2 rounded-lg transition-all ${formData.rating === star ? 'bg-gold-50 border-2 border-gold-500 scale-110 shadow-sm' : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'}`}
+                                            >
+                                                <div className="flex flex-col items-center gap-1">
+                                                    <svg
+                                                        className={`w-8 h-8 ${star <= (formData.rating || 5) ? 'text-gold-500 fill-gold-500' : 'text-gray-300'}`}
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                    >
+                                                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                                    </svg>
+                                                    <span className={`text-[10px] font-bold ${formData.rating === star ? 'text-gold-600' : 'text-gray-400'}`}>{star} Stars</span>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 

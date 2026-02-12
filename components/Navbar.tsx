@@ -22,11 +22,10 @@ const Navbar = () => {
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
     const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
-    const [isLoginOpen, setIsLoginOpen] = useState(false);
 
     const [categories, setCategories] = useState<{ name: string, subCategories: string[] }[]>([]);
     const { totalItems, setIsCartOpen } = useCart();
-    const { user, logout } = useAuth();
+    const { user, logout, setIsLoginModalOpen } = useAuth();
     const router = useRouter();
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
@@ -244,7 +243,7 @@ const Navbar = () => {
                                     </div>
                                 ) : (
                                     <button
-                                        onClick={() => setIsLoginOpen(true)}
+                                        onClick={() => setIsLoginModalOpen(true)}
                                         className="text-gray-900 hover:text-gold-600 transition-colors block"
                                         title="Sign In"
                                     >
@@ -307,7 +306,6 @@ const Navbar = () => {
                     )}
                 </div>
             </nav>
-            <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
         </>
     );
 };
