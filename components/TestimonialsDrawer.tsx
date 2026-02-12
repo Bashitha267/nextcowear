@@ -1,202 +1,194 @@
 "use client";
 
-import React, { useState } from "react";
-import { Star, X, Filter, ChevronDown, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Star, X, Check, Loader2 } from "lucide-react";
+import { getSiteReviews, getProductReviews } from "@/lib/api";
 
 const TestimonialsDrawer = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [activeTab, setActiveTab] = useState("Site Reviews");
+    const [activeTab, setActiveTab] = useState<"site" | "product">("site");
+    const [siteReviews, setSiteReviews] = useState<any[]>([]);
+    const [productReviews, setProductReviews] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const reviews = [
-        {
-            id: 1,
-            name: "Nina R.",
-            verified: true,
-            date: "02/07/26",
-            rating: 5,
-            title: "This is the best t-shirt",
-            content: "This is the best t-shirt I have ever purchased. It fits perfectly and I love the material. I plan on buying more and highly recommend it!",
-            product: "Womens 3/4 Sleeve Crew Neck",
-        },
-        {
-            id: 2,
-            name: "Liz G.",
-            verified: true,
-            date: "02/07/26",
-            rating: 5,
-            title: "Love everything about it. The",
-            content: "Love everything about it. The fit, the feel, the look. Will definitely be buying more.",
-            product: "Womens Elbow Sleeve V-Neck",
-        },
-        {
-            id: 3,
-            name: "Sarah M.",
-            verified: true,
-            date: "02/05/26",
-            rating: 5,
-            title: "Perfect fit",
-            content: "Finally found a shirt that fits perfectly. The fabric is amazing and breathes well.",
-        },
-        {
-            id: 4,
-            name: "John D.",
-            verified: true,
-            date: "02/01/26",
-            rating: 4,
-            title: "Great quality",
-            content: "High quality material, just a bit tighter than I expected. But overall very good.",
-        },
-    ];
+    useEffect(() => {
+        const fetchReviews = async () => {
+            setLoading(true);
+            try {
+                const [siteData, productData] = await Promise.all([
+                    getSiteReviews(),
+                    getProductReviews()
+                ]);
+                setSiteReviews(siteData);
+                setProductReviews(productData);
+            } catch (error) {
+                console.error("Failed to fetch testimonials", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchReviews();
+    }, []);
+
+    const currentReviews = activeTab === "site" ? siteReviews : productReviews;
+
+    const averageRating = (reviews: any[]) => {
+        if (reviews.length === 0) return 0;
+        const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+        return (sum / reviews.length).toFixed(1);
+    };
+
+    const ratingDistribution = (reviews: any[]) => {
+        const counts = [0, 0, 0, 0, 0];
+        reviews.forEach(r => {
+            if (r.rating >= 1 && r.rating <= 5) counts[r.rating - 1]++;
+        });
+        return counts.reverse().map((count, i) => ({
+            stars: 5 - i,
+            count,
+            pct: reviews.length > 0 ? `${(count / reviews.length) * 100}%` : '0%'
+        }));
+    };
 
     return (
         <>
-            {/* Trigger Button - positioned in Hero Section as requested */}
-            <div className={`absolute fixed left-0 top-40 translate-y-3 z-40 transition-transform duration-300 ${isOpen ? 'translate-x-[500px] lg:translate-x-[600px]' : 'translate-x-0'}`}>
+            {/* Trigger Button */}
+            <div className={`fixed left-0 top-1/2 -translate-y-1/2 z-40 transition-transform duration-300 ${isOpen ? 'translate-x-[500px] lg:translate-x-[600px]' : 'translate-x-0'}`}>
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="bg-gray-900 text-white py-4 rounded-r-md shadow-lg flex flex-col items-center gap-3 hover:bg-gold-600 transition-colors"
+                    className="bg-gray-900 text-white py-4 rounded-r-md shadow-2xl flex flex-col items-center gap-3 hover:bg-gold-600 transition-colors border-y border-r border-white/10"
                     aria-label="Open Reviews"
                 >
-                    <span className="whitespace-nowrap text-xs font-bold tracking-widest uppercase -rotate-90 py-5">
+                    <span className="whitespace-nowrap text-xs font-bold tracking-[0.3em] uppercase -rotate-90 py-6">
                         Reviews
                     </span>
-                    <Star size={12} className="fill-white" />
+                    <Star size={14} className="fill-white" />
                 </button>
             </div>
 
             {/* Overlay Backdrop */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/20 backdrop-blur-[1px] z-9998"
+                    className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-9998 animate-in fade-in duration-300"
                     onClick={() => setIsOpen(false)}
                 />
             )}
 
             {/* Drawer Panel */}
             <div
-                className={`fixed top-0 left-0 h-full w-full md:w-[500px] lg:w-[600px] bg-white shadow-2xl z-9999 transform transition-transform duration-500 ease-in-out overflow-hidden flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`fixed top-0 left-0 h-full w-full md:w-[500px] lg:w-[600px] bg-white shadow-2xl z-9999 transform transition-transform duration-500 ease-in-out overflow-hidden flex flex-col border-r border-gold-100 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
             >
                 {/* Close Button */}
                 <button
                     onClick={() => setIsOpen(false)}
-                    className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 transition-colors"
+                    className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all active:scale-95 z-10"
                 >
                     <X size={24} />
                 </button>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto p-8 md:p-12 scrollbar-thin scrollbar-thumb-gold-200 scrollbar-track-transparent">
+                <div className="flex-1 overflow-y-auto p-8 md:p-12 scrollbar-thin scrollbar-thumb-gold-200">
+                    <div className="text-center mb-12">
+                        <span className="text-gold-600 font-bold tracking-[0.4em] uppercase text-[10px] mb-4 block">Testimonials</span>
+                        <h2 className="text-3xl font-serif text-gray-900 mb-8 uppercase tracking-widest">Customer Voice</h2>
 
-                    <div className="text-center mb-10">
-                        <h2 className="text-xl font-sans text-gray-500 mb-8">Customer Testimonials</h2>
-
-                        <div className="flex flex-col items-center gap-2 mb-2">
-                            <span className="text-6xl text-gray-800 font-light">4.8</span>
-                            <div className="flex gap-1">
+                        <div className="flex flex-col items-center gap-4 mb-8 bg-gold-50/30 py-8 rounded-sm">
+                            <span className="text-7xl text-gray-900 font-serif leading-none">
+                                {averageRating(currentReviews)}
+                            </span>
+                            <div className="flex gap-1 text-gold-500">
                                 {[...Array(5)].map((_, i) => (
-                                    <Star key={i} size={20} className="fill-gray-800 text-gray-800" />
+                                    <Star key={i} size={20} className={i < Math.floor(Number(averageRating(currentReviews))) ? "fill-current" : "text-gray-200"} />
                                 ))}
                             </div>
-                            <span className="text-sm text-gray-400">Based on 3452 reviews</span>
+                            <span className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">
+                                Based on {currentReviews.length} {activeTab} reviews
+                            </span>
                         </div>
-                    </div>
 
-                    {/* Rating Bars */}
-                    <div className="mb-10 space-y-2 max-w-xs mx-auto">
-                        {[
-                            { stars: 5, count: 2918, pct: '90%' },
-                            { stars: 4, count: 309, pct: '15%' },
-                            { stars: 3, count: 160, pct: '8%' },
-                            { stars: 2, count: 44, pct: '3%' },
-                            { stars: 1, count: 21, pct: '1%' },
-                        ].map((row) => (
-                            <div key={row.stars} className="flex items-center gap-3 text-xs text-gray-500">
-                                <span className="w-3">{row.stars}</span>
-                                <Star size={10} className="fill-gray-500 text-gray-500" />
-                                <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                    <div className="h-full bg-gray-600 rounded-full" style={{ width: row.pct }}></div>
+                        {/* Rating Bars */}
+                        <div className="mb-12 space-y-3 max-w-xs mx-auto">
+                            {ratingDistribution(currentReviews).map((row) => (
+                                <div key={row.stars} className="flex items-center gap-4 text-[10px] font-bold text-gray-400">
+                                    <span className="w-4">{row.stars}</span>
+                                    <Star size={10} className="fill-current" />
+                                    <div className="flex-1 h-1 bg-gray-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-gray-900 rounded-full transition-all duration-700" style={{ width: row.pct }}></div>
+                                    </div>
+                                    <span className="w-8 text-right">{row.count}</span>
                                 </div>
-                                <span className="w-8 text-right">{row.count}</span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex gap-8 border-b border-gray-100 mb-3">
+                    <div className="flex gap-8 border-b border-gray-100 mb-10 overflow-x-auto no-scrollbar">
                         <button
-                            className={`pb-3 text-sm font-medium transition-colors ${activeTab === 'Site Reviews' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
-                            onClick={() => setActiveTab('Site Reviews')}
+                            className={`pb-4 text-[11px] font-bold tracking-[0.2em] uppercase transition-all whitespace-nowrap ${activeTab === 'site' ? 'text-gray-900 border-b-2 border-gold-500' : 'text-gray-400 hover:text-gray-600'}`}
+                            onClick={() => setActiveTab('site')}
                         >
-                            Site Reviews
+                            Site Experience
                         </button>
                         <button
-                            className={`pb-3 text-sm font-medium transition-colors ${activeTab === 'Product Reviews' ? 'text-gray-900 border-b-2 border-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
-                            onClick={() => setActiveTab('Product Reviews')}
+                            className={`pb-4 text-[11px] font-bold tracking-[0.2em] uppercase transition-all whitespace-nowrap ${activeTab === 'product' ? 'text-gray-900 border-b-2 border-gold-500' : 'text-gray-400 hover:text-gray-600'}`}
+                            onClick={() => setActiveTab('product')}
                         >
-                            Product Reviews
+                            Products
                         </button>
                     </div>
-
-
 
                     {/* Reviews List */}
-                    <div className="space-y-5">
-                        {reviews.map((review) => (
-                            <div key={review.id} className="border-b border-gray-100 pb-10 last:border-0 hover:bg-gray-50/50 p-4 -mx-4 rounded-lg transition-colors">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm">
-                                            {review.name.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <div className="text-sm font-bold text-gray-900">{review.name}</div>
-                                            {review.verified && (
-                                                <div className="flex items-center gap-1 text-[10px] text-gray-400 uppercase tracking-wider font-medium">
+                    <div className="space-y-8">
+                        {loading ? (
+                            <div className="flex justify-center py-20">
+                                <Loader2 size={32} className="text-gold-500 animate-spin" />
+                            </div>
+                        ) : currentReviews.length > 0 ? (
+                            currentReviews.map((review) => (
+                                <div key={review.id} className="border-b border-gray-100 pb-10 last:border-0 hover:bg-gold-50/20 p-6 -mx-6 rounded-sm transition-colors group">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm border border-gray-200 group-hover:border-gold-300 transition-colors">
+                                                {review.author_name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <div className="text-xs font-bold text-gray-900 uppercase tracking-widest">{review.author_name}</div>
+                                                <div className="flex items-center gap-1.5 text-[9px] text-gold-600 uppercase tracking-widest mt-1">
                                                     <Check size={10} className="stroke-3" /> Verified Buyer
                                                 </div>
-                                            )}
+                                            </div>
                                         </div>
+                                        <span className="text-[10px] text-gray-400 font-bold tracking-widest uppercase">{new Date(review.created_at).toLocaleDateString()}</span>
                                     </div>
-                                    <span className="text-xs text-gray-400">{review.date}</span>
-                                </div>
 
-                                <div className="flex gap-1 mb-3">
-                                    {[...Array(5)].map((_, i) => (
-                                        <Star
-                                            key={i}
-                                            size={14}
-                                            className={`${i < review.rating ? 'fill-gray-900 text-gray-900' : 'text-gray-200'}`}
-                                        />
-                                    ))}
-                                </div>
-
-                                <h3 className="text-base font-bold text-gray-900 mb-2">{review.title}</h3>
-                                <p className="text-sm text-gray-600 leading-relaxed mb-4">{review.content}</p>
-
-                                {review.product && (
-                                    <div className="text-xs text-gray-400 font-medium">
-                                        Product Reviewed: <span className="text-gray-700">{review.product}</span>
+                                    <div className="flex gap-0.5 mb-4 text-gray-900">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} size={14} className={i < review.rating ? "fill-current" : "text-gray-100"} />
+                                        ))}
                                     </div>
-                                )}
 
-                                <div className="mt-4 flex gap-4 text-xs text-gray-400">
-                                    <span>Was this review helpful?</span>
-                                    <button className="hover:text-gray-900 flex items-center gap-1">👍 0</button>
-                                    <button className="hover:text-gray-900 flex items-center gap-1">👎 0</button>
+                                    <h3 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">{review.title}</h3>
+                                    <p className="text-sm text-gray-600 leading-relaxed mb-6 font-light italic">"{review.content}"</p>
+
+                                    {activeTab === 'product' && review.product && (
+                                        <div className="bg-white border border-gray-100 p-3 flex items-center gap-3 mb-6 rounded-sm shadow-sm group-hover:border-gold-200 transition-colors">
+                                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Product:</div>
+                                            <span className="text-[10px] font-bold text-gray-900 uppercase tracking-widest underline underline-offset-4">{review.product.name}</span>
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                        <span>Helpful?</span>
+                                        <button className="hover:text-gold-600 transition-colors">👍 {review.helpful_count || 0}</button>
+                                        <button className="hover:text-red-400 transition-colors">👎 0</button>
+                                    </div>
                                 </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-20 text-gray-400 text-sm italic">
+                                No reviews yet. Be the first to tell us what you think!
                             </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-8 flex justify-center">
-                        <div className="flex gap-2">
-                            <button className="w-8 h-8 flex items-center justify-center bg-gray-900 text-white text-xs rounded-sm">1</button>
-                            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 text-xs rounded-sm transition-colors">2</button>
-                            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 text-xs rounded-sm transition-colors">3</button>
-                            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 text-xs rounded-sm transition-colors">4</button>
-                            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 text-xs rounded-sm transition-colors">5</button>
-                            <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 text-gray-600 text-xs rounded-sm transition-colors">&gt;</button>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>

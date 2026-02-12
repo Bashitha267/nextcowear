@@ -52,10 +52,10 @@ const Footer = () => {
                                 From Our Island to Your Wardrobe!
                             </p>
                             <Link
-                                href="/our-story"
+                                href="/our-heritage"
                                 className="text-xs font-bold tracking-[0.2em] uppercase text-gray-900 border-b-2 border-gold-500 pb-1 hover:text-gold-500 transition-colors inline-block"
                             >
-                                Read more
+                                Read our legacy
                             </Link>
                         </div>
                     </div>

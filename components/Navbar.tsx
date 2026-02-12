@@ -72,7 +72,7 @@ const Navbar = () => {
     const rightLinks: NavLink[] = [
         { name: "Why Us", href: "/why-us" },
         { name: "Reviews", href: "/reviews" },
-        { name: "Our Story", href: "/our-story" },
+        { name: "Our Heritage", href: "/our-heritage" },
     ];
 
     return (

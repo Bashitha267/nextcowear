@@ -221,6 +221,39 @@ export async function getFilterOptions() {
     };
 }
 
+// Function to fetch approved site reviews
+export async function getSiteReviews() {
+    const { data, error } = await supabase
+        .from('site_reviews')
+        .select('*')
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching site reviews:', error);
+        return [];
+    }
+    return data;
+}
+
+// Function to fetch approved product reviews
+export async function getProductReviews() {
+    const { data, error } = await supabase
+        .from('product_reviews')
+        .select(`
+            *,
+            product:products(name, main_image)
+        `)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching product reviews:', error);
+        return [];
+    }
+    return data;
+}
+
 
 // Helper to map DB response to UI Product interface
 function mapSupabaseProductsToUI(data: any[]): Product[] {
