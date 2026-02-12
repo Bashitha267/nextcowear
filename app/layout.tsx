@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 
 import ConditionalLayout from "@/components/ConditionalLayout";
 import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
@@ -33,12 +34,14 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${montserrat.variable} antialiased font-sans`}
       >
-        <CartProvider>
-          <Toaster position="top-center" />
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Toaster position="top-center" />
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

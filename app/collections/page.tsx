@@ -388,21 +388,32 @@ const CollectionsContent = () => {
                                 <div key={product.id} className="group animate-in fade-in zoom-in duration-500">
                                     <div className="relative aspect-3/4 overflow-hidden mb-6 border-2 border-gold-50 group-hover:border-gold-300 transition-all duration-700 shadow-sm rounded-sm">
                                         <Link href={`/product/${product.id}`} className="block relative w-full h-full cursor-pointer overflow-hidden z-10">
+                                            {/* Primary Image */}
                                             <Image
                                                 src={product.image}
                                                 alt={product.name}
                                                 fill
-                                                className="object-cover transition-transform duration-1000 group-hover:scale-110"
+                                                className={`object-cover transition-opacity duration-500 ${product.additionalImages && product.additionalImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
                                             />
-                                            {/* Badges */}
-                                            <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 transition-transform duration-500 group-hover:-translate-y-1">
-                                                {product.isNew && (
-                                                    <span className="bg-gold-500 text-white text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-2 shadow-lg rounded-xs">New</span>
-                                                )}
-                                                {product.isBestSeller && (
-                                                    <span className="bg-gray-900 text-white text-[9px] font-bold tracking-[0.3em] uppercase px-3 py-2 shadow-lg rounded-xs">Top Seller</span>
-                                                )}
-                                            </div>
+                                            {/* Secondary Image on Hover */}
+                                            {product.additionalImages && product.additionalImages.length > 0 && (
+                                                <Image
+                                                    src={product.additionalImages[0]}
+                                                    alt={`${product.name} View 2`}
+                                                    fill
+                                                    className="absolute inset-0 object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                                                />
+                                            )}
+
+                                            {/* Ribbon Badges - Top Left */}
+                                            {(product.isNew || product.isBestSeller || product.isFeatured) && (
+                                                <div className="absolute top-0 left-0 w-28 h-28 overflow-hidden z-20 pointer-events-none">
+                                                    <div className={`absolute -left-9 top-5 w-40 -rotate-45 text-white text-[10px] font-bold tracking-widest uppercase py-1.5 text-center shadow-lg backdrop-blur-md 
+                                                        ${product.isNew ? 'bg-emerald-600/95' : product.isFeatured ? 'text-gold-200 bg-gray-900/95' : 'bg-gold-600/95'}`}>
+                                                        {product.isNew ? 'New Arrival' : product.isFeatured ? 'Featured' : 'Best Seller'}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </Link>
 
                                         {/* Quick Add Bottom Bar */}

@@ -73,62 +73,64 @@ export default async function AdminDashboard() {
                 />
             </div>
 
-            {/* Orders Section - Under Development */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 flex flex-col items-center justify-center text-center space-y-4">
-                <div className="bg-gray-100 p-4 rounded-full">
-                    <Hammer className="w-12 h-12 text-gray-400" />
+            {/* Orders Section */}
+            <Link
+                href="/admin/orders"
+                className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 flex flex-col items-center justify-center text-center space-y-4 hover:shadow-md transition-shadow cursor-pointer group"
+            >
+                <div className="bg-gold-50 p-4 rounded-full group-hover:scale-110 transition-transform">
+                    <ShoppingCart className="w-12 h-12 text-gold-600" />
                 </div>
                 <div>
-                    <h2 className="text-xl font-semibold text-gray-900">Orders Management</h2>
+                    <h2 className="text-xl font-semibold text-gray-900 group-hover:text-gold-600 transition-colors">Orders Management</h2>
                     <p className="text-gray-500 mt-2 max-w-md">
-                        The detailed orders management section is currently under development.
-                        You can view the total order count above.
+                        View, track, and manage all customer orders. Update statuses and view details.
                     </p>
                 </div>
                 <div className="pt-2">
-                    <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gold-50 text-gold-700 border border-gold-100">
-                        Available Soon
+                    <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-gold-600 text-white shadow-sm">
+                        View Orders
                     </span>
                 </div>
-            </div>
+            </Link>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Link
-                    href="/admin/products/new"
-                    className="bg-linear-to-r from-gold-500 to-gold-600 text-white rounded-lg p-6 hover:shadow-lg transition-shadow"
+                    href="/admin/products"
+                    className="bg-linear-to-r from-gray-900 to-gray-800 text-white rounded-lg p-6 hover:shadow-lg transition-shadow group"
                 >
                     <div className="flex items-center">
-                        <Package className="w-8 h-8 mr-4" />
+                        <Package className="w-8 h-8 mr-4 text-gold-500 group-hover:text-gold-400" />
                         <div>
-                            <h3 className="font-semibold text-lg">Add New Product</h3>
-                            <p className="text-sm text-gold-100 mt-1">Upload and create products</p>
+                            <h3 className="font-semibold text-lg">Products</h3>
+                            <p className="text-sm text-gray-400 mt-1">Manage and add new products</p>
                         </div>
                     </div>
                 </Link>
 
                 <Link
                     href="/admin/reviews"
-                    className="bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg p-6 hover:shadow-lg transition-shadow"
+                    className="bg-linear-to-r from-gray-900 to-gray-800 text-white rounded-lg p-6 hover:shadow-lg transition-shadow group"
                 >
                     <div className="flex items-center">
-                        <Star className="w-8 h-8 mr-4" />
+                        <Star className="w-8 h-8 mr-4 text-gold-500 group-hover:text-gold-400" />
                         <div>
                             <h3 className="font-semibold text-lg">Reviews</h3>
-                            <p className="text-sm text-blue-100 mt-1">Manage customer reviews</p>
+                            <p className="text-sm text-gray-400 mt-1">Manage customer reviews</p>
                         </div>
                     </div>
                 </Link>
 
                 <Link
                     href="/admin/users"
-                    className="bg-linear-to-r from-purple-500 to-purple-600 text-white rounded-lg p-6 hover:shadow-lg transition-shadow"
+                    className="bg-linear-to-r from-gray-900 to-gray-800 text-white rounded-lg p-6 hover:shadow-lg transition-shadow group"
                 >
                     <div className="flex items-center">
-                        <Users className="w-8 h-8 mr-4" />
+                        <Users className="w-8 h-8 mr-4 text-gold-500 group-hover:text-gold-400" />
                         <div>
                             <h3 className="font-semibold text-lg">Users</h3>
-                            <p className="text-sm text-purple-100 mt-1">Manage registered users</p>
+                            <p className="text-sm text-gray-400 mt-1">Manage registered users</p>
                         </div>
                     </div>
                 </Link>

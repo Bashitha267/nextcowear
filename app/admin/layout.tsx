@@ -9,11 +9,12 @@ export default async function AdminLayout({
 }) {
     // Login page doesn't need authentication check - it renders without layout
     // All other admin pages require authentication
-    const authenticated = await isAuthenticated();
+    // Server-side auth check removed in favor of client-side AuthContext check
+    // const authenticated = await isAuthenticated();
+    // if (!authenticated) {
+    //     redirect('/login');
+    // }
 
-    if (!authenticated) {
-        redirect('/login');
-    }
 
     return (
         <AdminLayoutContent>

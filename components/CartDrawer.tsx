@@ -141,7 +141,13 @@ const CartDrawer = () => {
                         </div>
 
                         <div className="pt-4">
-                            <button className="w-full bg-gold-600 text-white py-4 rounded-sm text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-700 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 group relative overflow-hidden">
+                            <button
+                                onClick={() => {
+                                    setIsCartOpen(false);
+                                    window.location.href = '/checkout';
+                                }}
+                                className="w-full bg-gold-600 text-white py-4 rounded-sm text-xs font-bold tracking-[0.2em] uppercase hover:bg-gold-700 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 group relative overflow-hidden"
+                            >
                                 <span className="relative z-10">Checkout</span>
                                 <span className="w-full h-full absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
                             </button>

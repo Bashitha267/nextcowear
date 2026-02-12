@@ -1,137 +1,112 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Lock, User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'react-hot-toast';
+import { Mail, Lock, ArrowRight, Loader2, User } from 'lucide-react';
 
-export default function AdminLoginPage() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
+export default function Login() {
     const router = useRouter();
+    const { login } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
         setLoading(true);
 
         try {
-            const response = await fetch('/api/admin/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                router.push('/admin');
-                router.refresh();
-            } else {
-                setError(data.error || 'Invalid credentials');
-            }
-        } catch (err) {
-            setError('An error occurred. Please try again.');
+            await login(email, password);
+            // Redirect is handled in AuthContext but we can do it here too if needed, 
+            // but AuthContext handles admin/user redirect.
+        } catch (error: any) {
+            // Error is displayed by AuthContext toast usually, but we can catch here too.
+            console.error(error);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gold-50 via-white to-gold-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-md">
-                {/* Logo/Header */}
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-serif font-bold text-gray-900 mb-2">DressCo</h1>
-                    <p className="text-gray-600">Admin Dashboard</p>
+        <div className="min-h-screen pt-32 pb-20 relative flex items-center justify-center px-4 overflow-hidden bg-trans text-white">
+            {/* Back Link */}
+            <Link href="/" className="absolute top-8 left-8 z-20 flex items-center gap-2 text-gray-400 hover:text-gold-500 transition-colors font-medium text-sm">
+                <ArrowRight className="w-4 h-4 rotate-180" />
+                Back to Website
+            </Link>
+
+            {/* Background with Blur */}
+            <div className="absolute inset-0 z-0">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gold-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-900/40 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+            </div>
+
+            <div className="relative z-10 max-w-md w-full bg-white/10 backdrop-blur-2xl rounded-3xl shadow-2xl p-8 md:p-12 border border-white/10 flex flex-col items-center">
+                <div className="w-20 h-20 bg-gold-500/20 rounded-2xl flex items-center justify-center mb-8 shadow-inner border border-white/5">
+                    <User className="text-gold-400 w-10 h-10" />
                 </div>
 
-                {/* Login Card */}
-                <div className="bg-white rounded-lg shadow-xl border border-gold-200 p-8">
-                    <h2 className="text-2xl font-serif font-semibold text-gray-900 mb-6 text-center">
-                        Sign In
-                    </h2>
+                <h1 className="text-3xl font-serif font-bold text-white uppercase tracking-widest text-center mb-2">Welcome Back</h1>
+                <p className="text-gray-400 text-sm font-bold uppercase tracking-[0.2em] mb-10">Sign in to your account</p>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Username Field */}
-                        <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                                Username
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <User className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="username"
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    required
-                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition"
-                                    placeholder="Enter username"
-                                />
-                            </div>
+                <form onSubmit={handleLogin} className="w-full space-y-6 text-left">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                        <div className="relative">
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                            <input
+                                required
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all font-medium placeholder:text-gray-600"
+                                placeholder="name@example.com"
+                            />
                         </div>
-
-                        {/* Password Field */}
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-gold-500 focus:border-gold-500 outline-none transition"
-                                    placeholder="Enter password"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Error Message */}
-                        {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
-                                {error}
-                            </div>
-                        )}
-
-                        {/* Submit Button */}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-gold-500 hover:bg-gold-600 text-white font-medium py-2.5 px-4 rounded-md transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-                        >
-                            {loading ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Signing in...
-                                </>
-                            ) : (
-                                'Sign In'
-                            )}
-                        </button>
-                    </form>
-
-                    {/* Demo Credentials Note */}
-                    <div className="mt-6 p-4 bg-gold-50 border border-gold-200 rounded-md">
-                        <p className="text-sm text-gray-700 text-center">
-                            <span className="font-medium">Demo Credentials:</span><br />
-                            Username: <code className="bg-white px-2 py-0.5 rounded">admin</code><br />
-                            Password: <code className="bg-white px-2 py-0.5 rounded">admin123</code>
-                        </p>
                     </div>
-                </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                        <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                            <input
+                                required
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-12 py-3.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 transition-all font-medium placeholder:text-gray-600"
+                                placeholder="••••••••"
+                            />
+                        </div>
+                        <div className="text-right">
+                            <Link href="/forgot-password" title="sm" className="text-[10px] font-bold text-gold-600 uppercase tracking-widest hover:underline">
+                                Forgot password?
+                            </Link>
+                        </div>
+                    </div>
+
+                    <button
+                        disabled={loading}
+                        type="submit"
+                        className="w-full bg-linear-to-r from-gold-500 to-gold-600 text-black py-4 rounded-xl text-xs font-bold tracking-[0.4em] uppercase hover:opacity-90 transition-all flex items-center justify-center gap-3 shadow-lg shadow-gold-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed group"
+                    >
+                        {loading ? (
+                            <Loader2 className="animate-spin w-5 h-5" />
+                        ) : (
+                            <>
+                                <span>Sign In</span>
+                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </>
+                        )}
+                    </button>
+
+                    <p className="text-center text-sm text-gray-400 font-medium pt-4">
+                        Don't have an account? <Link href="/signup" className="text-gold-500 font-bold hover:underline">Create One</Link>
+                    </p>
+                </form>
             </div>
         </div>
     );

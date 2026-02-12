@@ -30,8 +30,8 @@ const BestSellersSection = ({ products }: BestSellersSectionProps) => {
                                 key={tab}
                                 onClick={() => setActiveTab(tab as any)}
                                 className={`text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.2em] uppercase py-4 border-b-2 transition-all whitespace-nowrap ${activeTab === tab
-                                        ? 'border-gold-500 text-gold-600'
-                                        : 'border-transparent text-gray-400 hover:text-gold-500'
+                                    ? 'border-gold-500 text-gold-600'
+                                    : 'border-transparent text-gray-400 hover:text-gold-500'
                                     }`}
                             >
                                 For {tab}
@@ -46,17 +46,31 @@ const BestSellersSection = ({ products }: BestSellersSectionProps) => {
                             <div key={product.id} className="flex flex-col group/item transition-all duration-500 hover:-translate-y-2">
                                 <div className="relative aspect-[4/5] overflow-hidden mb-6 border border-gold-50 hover:border-gold-300 transition-all duration-300 rounded-sm shadow-sm group-hover/item:shadow-xl">
                                     <Link href={`/product/${product.id}`} className="block relative w-full h-full">
+                                        {/* Primary Image */}
                                         <Image
                                             src={product.image}
                                             alt={product.name}
                                             fill
-                                            className="object-cover transition-transform duration-700 group-hover/item:scale-110"
+                                            className={`object-cover transition-opacity duration-500 ${product.additionalImages && product.additionalImages.length > 0 ? 'group-hover/item:opacity-0' : ''}`}
                                         />
+                                        {/* Secondary Image on Hover */}
+                                        {product.additionalImages && product.additionalImages.length > 0 && (
+                                            <Image
+                                                src={product.additionalImages[0]}
+                                                alt={`${product.name} View 2`}
+                                                fill
+                                                className="absolute inset-0 object-cover opacity-0 group-hover/item:opacity-100 transition-opacity duration-500"
+                                            />
+                                        )}
                                     </Link>
-                                    {product.isBestSeller && (
-                                        <span className="absolute top-2 left-2 bg-gold-600 text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 shadow-sm z-10">
-                                            Best Seller
-                                        </span>
+                                    {/* Ribbon Badges - Top Left */}
+                                    {(product.isNew || product.isBestSeller || product.isFeatured) && (
+                                        <div className="absolute top-0 left-0 w-28 h-28 overflow-hidden z-10 pointer-events-none">
+                                            <div className={`absolute -left-9 top-5 w-40 -rotate-45 text-white text-[10px] font-bold tracking-widest uppercase py-1.5 text-center shadow-lg backdrop-blur-md 
+                                                ${product.isNew ? 'bg-emerald-600/95' : product.isFeatured ? 'bg-gray-900/95' : 'bg-gold-600/95'}`}>
+                                                {product.isNew ? 'New Arrival' : product.isFeatured ? 'Featured' : 'Best Seller'}
+                                            </div>
+                                        </div>
                                     )}
                                     <button className="absolute bottom-4 right-4 bg-white/95 p-3 rounded-full shadow-lg opacity-0 translate-y-4 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all hover:bg-gold-500 hover:text-white z-20">
                                         <Plus size={20} />

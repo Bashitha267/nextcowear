@@ -58,9 +58,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
             const existingItemIndex = prevCart.findIndex(item => item.cartItemId === cartItemId);
 
             if (existingItemIndex > -1) {
-                // Item exists, update quantity
+                // Item exists, update quantity immutably
                 const newCart = [...prevCart];
-                newCart[existingItemIndex].quantity += quantity;
+                newCart[existingItemIndex] = {
+                    ...newCart[existingItemIndex],
+                    quantity: newCart[existingItemIndex].quantity + quantity
+                };
                 return newCart;
             } else {
                 // New item

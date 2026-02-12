@@ -11,6 +11,7 @@ export interface Product {
     description?: string;
     isNew?: boolean;
     isBestSeller?: boolean;
+    isFeatured?: boolean;
     rating: number;
     reviews: number;
     colors: {
@@ -51,6 +52,9 @@ export const products: Product[] = [
         price: 12500,
         originalPrice: 15600,
         image: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&q=80&w=1000',
+        additionalImages: [
+            'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&q=80&w=1000' // Placeholder
+        ],
         isNew: true,
         rating: 4.8,
         reviews: 24,
@@ -67,6 +71,7 @@ export const products: Product[] = [
         price: 4500,
         image: 'https://res.cloudinary.com/dnfbik3if/image/upload/v1770473787/Brown_Aesthetic_Fashion_Sale_Billboard_Landscape_mbid2g.jpg',
         isBestSeller: true,
+        isFeatured: true,
         rating: 4.5,
         reviews: 56,
         colors: {
@@ -141,6 +146,9 @@ export const products: Product[] = [
         subCategory: 'Shirts',
         price: 5600,
         image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&q=80&w=1000',
+        additionalImages: [
+            'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&q=80&w=1000' // Placeholder back view
+        ],
         isBestSeller: true,
         rating: 4.6,
         reviews: 89,

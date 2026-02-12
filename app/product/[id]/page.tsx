@@ -21,9 +21,10 @@ import {
 } from "lucide-react";
 import { Product } from "@/lib/data";
 import TestimonialsDrawer from "@/components/TestimonialsDrawer";
-import { getProductById, getRelatedProducts } from "@/lib/api";
+import { getProductById, getRelatedProducts, getReviewsByProductId, submitReview, ProductReview } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "react-hot-toast";
+import { X, Camera, Loader2 } from "lucide-react";
 
 const ProductDetailsPage = () => {
     const params = useParams();
@@ -39,6 +40,19 @@ const ProductDetailsPage = () => {
     const [quantity, setQuantity] = useState(1);
     const [expandedAccordion, setExpandedAccordion] = useState<string | null>("overview");
     const [isAdding, setIsAdding] = useState(false);
+    const [reviews, setReviews] = useState<ProductReview[]>([]);
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+    // Review Form State
+    const [reviewForm, setReviewForm] = useState({
+        author_name: "",
+        rating: 5,
+        title: "",
+        content: "",
+        author_image_url: ""
+    });
+    const [uploadingImage, setUploadingImage] = useState(false);
 
     const { addToCart } = useCart();
 
@@ -50,8 +64,12 @@ const ProductDetailsPage = () => {
                 setProduct(fetchedProduct);
 
                 if (fetchedProduct) {
-                    const related = await getRelatedProducts(fetchedProduct.category, fetchedProduct.id);
+                    const [related, productReviews] = await Promise.all([
+                        getRelatedProducts(fetchedProduct.category, fetchedProduct.id),
+                        getReviewsByProductId(productId)
+                    ]);
                     setRelatedProducts(related);
+                    setReviews(productReviews);
 
                     // Set initial selections
                     if (fetchedProduct.colors?.classic && fetchedProduct.colors.classic.length > 0) {
@@ -239,7 +257,7 @@ const ProductDetailsPage = () => {
 
                         {/* Sizes */}
                         {product.sizes.length > 0 && (
-                            <div className="space-y-6 pt-10 border-t border-gray-100">
+                            <div className="space-y-6 pt-4 border-t border-gray-100">
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-xs font-bold tracking-[0.3em] uppercase text-gray-900">Select Size:</h3>
                                     <button className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-gold-500 transition-colors uppercase tracking-[0.2em] underline underline-offset-4">
@@ -267,7 +285,7 @@ const ProductDetailsPage = () => {
                         )}
 
                         {/* Quantity & Actions */}
-                        <div className="space-y-6 pt-8">
+                        <div className="space-y-6 pt-1">
                             <div className="flex flex-col sm:flex-row gap-6">
                                 <div className="flex items-center justify-center border-2 border-gold-100 h-16 rounded-sm w-full sm:w-40 font-bold bg-white">
                                     <button
@@ -321,7 +339,7 @@ const ProductDetailsPage = () => {
                 </div>
 
                 {/* Full Width Accordion Details below the grid */}
-                <div className="pt-20 mt-10 border-t border-gray-100">
+                <div className="pt-1 mt-4 border-t border-gray-300">
                     {[
                         { id: 'overview', label: 'OVERVIEW', content: product.details?.overview },
                         { id: 'sustainability', label: 'SUSTAINABILITY', content: product.details?.sustainability },
@@ -331,7 +349,7 @@ const ProductDetailsPage = () => {
                         <div key={item.id} className="border-b border-gray-100 group">
                             <button
                                 onClick={() => toggleAccordion(item.id)}
-                                className="w-full flex items-center justify-between py-8 text-xs font-extrabold tracking-[0.3em] uppercase text-gray-900 hover:text-gold-600 transition-colors"
+                                className="w-full flex items-center justify-between pb-8 pt-4 text-xs font-extrabold tracking-[0.3em] uppercase text-gray-900 hover:text-gold-600 transition-colors"
                             >
                                 {item.label}
                                 {expandedAccordion === item.id ? <Minus size={16} /> : <Plus size={16} />}
@@ -346,11 +364,11 @@ const ProductDetailsPage = () => {
                 </div>
 
                 {/* Reviews Section */}
-                <section id="reviews" className="mt-32 pt-20 border-t border-gray-100">
+                <section id="reviews" className="mt- pt-20 border-t border-gray-100">
                     <div className="text-center mb-20">
                         <div className="flex items-center justify-center gap-8 text-[11px] font-bold tracking-[0.4em] uppercase text-gray-500 mb-12">
                             <span className="text-gray-900 border-b-2 border-gray-900 pb-2">Reviews</span>
-                            <span className="hover:text-gold-500 transition-colors cursor-pointer">Q&A</span>
+
                         </div>
                         <h2 className="text-2xl font-serif text-gray-900 mb-12 flex items-center justify-center gap-4">
                             <span className="w-12 h-px bg-gold-200"></span>
@@ -370,24 +388,22 @@ const ProductDetailsPage = () => {
                                 <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Based on {product.reviews} reviews</span>
                             </div>
 
-                            {/* Bars - Mocked distribution */}
+                            {/* Bars - Actual distribution */}
                             <div className="space-y-3 flex-1 w-full max-w-xs mx-auto">
-                                {[
-                                    { stars: 5, count: Math.round(product.reviews * 0.85), pct: '85%' },
-                                    { stars: 4, count: Math.round(product.reviews * 0.10), pct: '10%' },
-                                    { stars: 3, count: Math.round(product.reviews * 0.03), pct: '3%' },
-                                    { stars: 2, count: Math.round(product.reviews * 0.01), pct: '1%' },
-                                    { stars: 1, count: Math.round(product.reviews * 0.01), pct: '1%' },
-                                ].map((row) => (
-                                    <div key={row.stars} className="flex items-center gap-4 text-[10px] font-bold text-gray-500">
-                                        <span className="w-4">{row.stars}</span>
-                                        <Star size={11} className="fill-gray-400" />
-                                        <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                            <div className="h-full bg-gray-900 rounded-full" style={{ width: row.pct }}></div>
+                                {[5, 4, 3, 2, 1].map((starRating) => {
+                                    const count = reviews.filter(r => r.rating === starRating).length;
+                                    const pct = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                                    return (
+                                        <div key={starRating} className="flex items-center gap-4 text-[10px] font-bold text-gray-500">
+                                            <span className="w-4">{starRating}</span>
+                                            <Star size={11} className="fill-gray-400" />
+                                            <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                                <div className="h-full bg-gray-900 rounded-full transition-all duration-500" style={{ width: `${pct}%` }}></div>
+                                            </div>
+                                            <span className="w-8 text-right text-gray-400">{count}</span>
                                         </div>
-                                        <span className="w-8 text-right text-gray-400">{row.count}</span>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
 
                             <div className="flex flex-col items-center gap-10">
@@ -398,18 +414,255 @@ const ProductDetailsPage = () => {
                                     </div>
                                     <span className="text-[10px] font-bold text-gray-900 uppercase tracking-widest">True to size</span>
                                 </div>
-                                <button className="bg-gray-700 text-white px-10 py-4 rounded-full text-[10px] font-extrabold tracking-[0.2em] uppercase hover:bg-gold-600 transition-all shadow-xl active:scale-95 group relative overflow-hidden">
+                                <button
+                                    onClick={() => setIsReviewModalOpen(true)}
+                                    className="bg-gray-700 text-white px-10 py-4 rounded-full text-[10px] font-extrabold tracking-[0.2em] uppercase hover:bg-gold-600 transition-all shadow-xl active:scale-95 group relative overflow-hidden"
+                                >
                                     <span className="relative z-10">Write A Review</span>
                                     <div className="absolute inset-0 bg-gold-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
                                 </button>
                             </div>
                         </div>
+
+                        {/* Display Actual Reviews */}
+                        <div className="mt-10 space-y-12 text-left max-w-4xl mx-auto">
+                            {reviews.length > 0 ? (
+                                reviews.map((review) => (
+                                    <div key={review.id} className="border-b border-gray-100 pb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                        <div className="flex items-start gap-4 mb-4">
+                                            {review.author_image_url ? (
+                                                <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gold-200 shadow-sm">
+                                                    <Image src={review.author_image_url} alt={review.author_name} fill className="object-cover" />
+                                                </div>
+                                            ) : (
+                                                <div className="w-12 h-12 rounded-full bg-gold-100 flex items-center justify-center text-gold-600 font-bold uppercase border border-gold-200">
+                                                    {review.author_name.charAt(0)}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="text-sm font-bold text-gray-900 uppercase tracking-widest">{review.author_name}</h4>
+                                                    <div className="flex items-center gap-1.5 text-[8px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                                                        <Check size={8} className="stroke-3" /> Verified
+                                                    </div>
+                                                </div>
+                                                <div className="flex text-gold-500 mt-1">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star key={i} size={12} className={i < review.rating ? "fill-current" : "text-gray-200 border-gray-200 fill-gray-200"} />
+                                                    ))}
+                                                </div>
+                                                <span className="text-[10px] text-gray-400 font-bold flex items-center gap-2 mt-2 uppercase tracking-tighter">
+                                                    {new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        {review.title && <h5 className="text-lg font-serif text-gray-900 mb-2 italic">"{review.title}"</h5>}
+                                        <p className="text-gray-600 text-[13px] leading-relaxed font-medium">"{review.content}"</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center py-20 bg-gray-50/50 rounded-xl border border-dashed border-gray-200">
+                                    <div className="mb-4 flex justify-center text-gray-300">
+                                        <Star size={32} />
+                                    </div>
+                                    <p className="text-gray-400 text-sm italic font-serif">
+                                        No reviews yet for this product. Be the first to share your experience!
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </section>
 
+                {/* Review Modal */}
+                {isReviewModalOpen && (
+                    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6">
+                        <div
+                            className="absolute inset-0 bg-black/40 backdrop-blur-md transition-opacity"
+                            onClick={() => !isSubmittingReview && setIsReviewModalOpen(false)}
+                        />
+                        <div className="relative bg-white/90 backdrop-blur-xl w-full max-w-xl rounded-2xl shadow-2xl overflow-hidden border border-white/20 animate-in zoom-in-95 duration-300">
+                            <div className="p-8">
+                                <div className="flex justify-between items-center mb-8">
+                                    <h2 className="text-2xl font-serif text-gray-900 uppercase tracking-tight">Write a Review</h2>
+                                    <button
+                                        onClick={() => setIsReviewModalOpen(false)}
+                                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                        disabled={isSubmittingReview}
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={async (e) => {
+                                    e.preventDefault();
+                                    if (!reviewForm.author_name || !reviewForm.content || !reviewForm.rating) {
+                                        toast.error("Please fill in all required fields");
+                                        return;
+                                    }
+                                    setIsSubmittingReview(true);
+                                    try {
+                                        await submitReview({
+                                            product_id: productId,
+                                            author_name: reviewForm.author_name,
+                                            rating: reviewForm.rating,
+                                            title: reviewForm.title,
+                                            content: reviewForm.content,
+                                            author_image_url: reviewForm.author_image_url
+                                        });
+                                        toast.success("Review submitted successfully! It will appear after admin approval.", {
+                                            style: {
+                                                background: '#10B981',
+                                                color: '#fff',
+                                            }
+                                        });
+                                        setIsReviewModalOpen(false);
+                                        setReviewForm({
+                                            author_name: "",
+                                            rating: 5,
+                                            title: "",
+                                            content: "",
+                                            author_image_url: ""
+                                        });
+                                    } catch (err) {
+                                        toast.error("Failed to submit review. Please try again.", {
+                                            style: {
+                                                background: '#EF4444',
+                                                color: '#fff',
+                                            }
+                                        });
+                                    } finally {
+                                        setIsSubmittingReview(false);
+                                    }
+                                }} className="space-y-6">
+
+                                    {/* Name and Rating */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Your Name *</label>
+                                            <input
+                                                required
+                                                type="text"
+                                                value={reviewForm.author_name}
+                                                onChange={(e) => setReviewForm({ ...reviewForm, author_name: e.target.value })}
+                                                className="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-all"
+                                                placeholder="e.g. Sarah J."
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Rating *</label>
+                                            <div className="flex gap-2">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <button
+                                                        key={star}
+                                                        type="button"
+                                                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                                                        className={`transition-all ${star <= reviewForm.rating ? 'text-gold-500 scale-110' : 'text-gray-200 hover:text-gold-200'}`}
+                                                    >
+                                                        <Star size={24} className={star <= reviewForm.rating ? "fill-current" : ""} />
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Profile Picture Upload */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Profile Picture (Optional)</label>
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative w-16 h-16 rounded-full bg-gray-50 border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden group">
+                                                {reviewForm.author_image_url ? (
+                                                    <Image src={reviewForm.author_image_url} alt="Profile" fill className="object-cover" />
+                                                ) : (
+                                                    <Camera className="text-gray-300 group-hover:text-gold-500 transition-colors" size={20} />
+                                                )}
+                                                {uploadingImage && (
+                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                                        <Loader2 className="text-white animate-spin" size={16} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                id="profile-pic"
+                                                className="hidden"
+                                                onChange={async (e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (!file) return;
+
+                                                    setUploadingImage(true);
+                                                    const formData = new FormData();
+                                                    formData.append('file', file);
+                                                    formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'ml_default');
+
+                                                    try {
+                                                        const res = await fetch(
+                                                            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                                                            { method: 'POST', body: formData }
+                                                        );
+                                                        const data = await res.json();
+                                                        setReviewForm({ ...reviewForm, author_image_url: data.secure_url });
+                                                        toast.success("Image uploaded successfully");
+                                                    } catch (err) {
+                                                        toast.error("Failed to upload image");
+                                                    } finally {
+                                                        setUploadingImage(false);
+                                                    }
+                                                }}
+                                            />
+                                            <label
+                                                htmlFor="profile-pic"
+                                                className="cursor-pointer text-[10px] font-bold text-gold-600 uppercase tracking-widest hover:text-gold-700 transition-colors border-b border-gold-600 pb-0.5"
+                                            >
+                                                {reviewForm.author_image_url ? 'Change Photo' : 'Upload Photo'}
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    {/* Title and Content */}
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Review Title (Optional)</label>
+                                            <input
+                                                type="text"
+                                                value={reviewForm.title}
+                                                onChange={(e) => setReviewForm({ ...reviewForm, title: e.target.value })}
+                                                className="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-all"
+                                                placeholder="e.g. Absolutely stunning!"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Your Experience *</label>
+                                            <textarea
+                                                required
+                                                rows={4}
+                                                value={reviewForm.content}
+                                                onChange={(e) => setReviewForm({ ...reviewForm, content: e.target.value })}
+                                                className="w-full bg-gray-50 border border-gray-100 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/20 focus:border-gold-500 transition-all resize-none"
+                                                placeholder="Tell us what you loved about this product..."
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmittingReview || uploadingImage}
+                                        className="w-full bg-gray-900 text-gold-50 py-4 rounded-xl text-xs font-bold tracking-[0.3em] uppercase hover:bg-gold-600 transition-all flex items-center justify-center gap-3 shadow-xl disabled:opacity-70 disabled:cursor-not-allowed group overflow-hidden relative mt-4"
+                                    >
+                                        <span className="relative z-10">{isSubmittingReview ? "Submitting..." : "Submit Review"}</span>
+                                        {!isSubmittingReview && <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform" />}
+                                        <div className="absolute inset-0 bg-gold-600 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* You Might Also Like - Dynamic */}
                 {relatedProducts.length > 0 && (
-                    <section className="mt-40">
+                    <section className="mt-4">
                         <div className="text-center mb-16">
                             <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gold-600 mb-4 block animate-in fade-in duration-700">Complete The Look</span>
                             <h2 className="text-3xl md:text-4xl font-serif text-gray-900 tracking-tight mb-8">YOU MIGHT ALSO LIKE</h2>
@@ -417,13 +670,23 @@ const ProductDetailsPage = () => {
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                             {relatedProducts.map((rel) => (
                                 <Link key={rel.id} href={`/product/${rel.id}`} className="group block">
-                                    <div className="relative aspect-[3/4] bg-gray-50 overflow-hidden mb-4 border border-gray-100 rounded-sm">
+                                    <div className="relative aspect-3/4 bg-gray-50 overflow-hidden mb-4 border border-gold-50 rounded-sm">
+                                        {/* Primary Image */}
                                         <Image
                                             src={rel.image}
                                             alt={rel.name}
                                             fill
-                                            className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                            className={`object-cover transition-opacity duration-500 ${rel.additionalImages && rel.additionalImages.length > 0 ? 'group-hover:opacity-0' : ''}`}
                                         />
+                                        {/* Secondary Image on Hover */}
+                                        {rel.additionalImages && rel.additionalImages.length > 0 && (
+                                            <Image
+                                                src={rel.additionalImages[0]}
+                                                alt={`${rel.name} View 2`}
+                                                fill
+                                                className="absolute inset-0 object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                                            />
+                                        )}
                                     </div>
                                     <div className="text-center">
                                         <h3 className="text-xs font-bold tracking-widest uppercase text-gray-900 mb-2 truncate group-hover:text-gold-600 transition-colors">{rel.name}</h3>

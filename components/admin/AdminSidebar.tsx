@@ -18,6 +18,8 @@ import {
     FileCheck,
     Palette,
     RectangleHorizontal,
+    MessageCircle,
+    Settings,
     X
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -36,9 +38,9 @@ const navigation: NavItem[] = [
     { name: 'Colors', href: '/admin/colors', icon: Palette },
     { name: 'Sizes', href: '/admin/sizes', icon: RectangleHorizontal },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+    { name: 'Messages', href: '/admin/messages', icon: MessageCircle },
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
-    { name: 'Collections', href: '/admin/collections', icon: Grid3x3 },
     {
         name: 'Content',
         href: '/admin/content',
@@ -49,7 +51,8 @@ const navigation: NavItem[] = [
             { name: 'Size Charts', href: '/admin/content/size-charts', icon: Ruler },
             { name: 'Legal', href: '/admin/content/legal', icon: FileCheck }
         ]
-    }
+    },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 interface AdminSidebarProps {

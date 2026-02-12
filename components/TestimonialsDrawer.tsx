@@ -53,7 +53,7 @@ const TestimonialsDrawer = () => {
     return (
         <>
             {/* Trigger Button */}
-            <div className={`fixed left-0 top-1/2 -translate-y-1/2 z-40 transition-transform duration-300 ${isOpen ? 'translate-x-[500px] lg:translate-x-[600px]' : 'translate-x-0'}`}>
+            <div className={`fixed left-0 top-1/4 -translate-y-1/2 z-40 transition-transform duration-300 ${isOpen ? 'translate-x-[500px] lg:translate-x-[600px]' : 'translate-x-0'}`}>
                 <button
                     onClick={() => setIsOpen(true)}
                     className="bg-gray-900 text-white py-4 rounded-r-md shadow-2xl flex flex-col items-center gap-3 hover:bg-gold-600 transition-colors border-y border-r border-white/10"

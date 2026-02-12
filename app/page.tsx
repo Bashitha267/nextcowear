@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Star, ChevronLeft, ChevronRight, Quote, Plus, Feather, Scissors, Leaf } from "lucide-react";
 import TestimonialsDrawer from "@/components/TestimonialsDrawer";
-import { getBestSellers } from "@/lib/api";
+import { getBestSellers, getFeaturedReviews } from "@/lib/api";
 import BestSellersSection from "@/components/BestSellersSection";
 
 export default async function Home() {
   const bestSellers = await getBestSellers(50);
+  const reviews = await getFeaturedReviews(3);
 
   return (
     <div className="relative min-h-screen bg-white pt-20">
@@ -195,75 +196,36 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            <div className="flex gap-6">
-              <div className="shrink-0 w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center bg-gray-50">
-                <Quote size={24} className="text-gold-500" />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="fill-gray-900 text-gray-900" />
-                    ))}
+            {reviews && reviews.length > 0 ? (
+              reviews.map((review) => (
+                <div key={review.id} className="flex gap-6 group hover:bg-white/50 p-4 rounded-xl transition-all">
+                  <div className="shrink-0 w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center bg-gray-50 group-hover:bg-gold-50 transition-colors">
+                    <Quote size={24} className="text-gold-500" />
                   </div>
-                  <span className="text-[10px] text-gray-400 font-medium">03/14/25</span>
-                </div>
-                <h3 className="font-serif text-lg mb-2 text-gray-900">The way it feels when wearing</h3>
-                <p className="text-sm text-gray-500 leading-relaxed mb-4 italic">
-                  "I know they are made of premium fabric but they feel like cashmere. I love mine and have already ordered again."
-                </p>
-                <span className="text-sm font-bold tracking-wider text-gray-900">LeighAnn C.</span>
-              </div>
-            </div>
-
-            <div className="flex gap-6">
-              <div className="shrink-0 w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center bg-gray-50">
-                <Quote size={24} className="text-gold-500" />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="fill-gray-900 text-gray-900" />
-                    ))}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={14} className={i < review.rating ? "fill-gray-900 text-gray-900" : "text-gray-200"} />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-gray-400 font-medium">
+                        {new Date(review.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    {review.title && <h3 className="font-serif text-lg mb-2 text-gray-900">{review.title}</h3>}
+                    <p className="text-sm text-gray-500 leading-relaxed mb-4 italic line-clamp-3">
+                      "{review.content}"
+                    </p>
+                    <span className="text-sm font-bold tracking-wider text-gray-900">{review.author_name}</span>
                   </div>
-                  <span className="text-[10px] text-gray-400 font-medium">05/21/25</span>
                 </div>
-                <h3 className="font-serif text-lg mb-2 text-gray-900">Best tees I've ever owned!</h3>
-                <p className="text-sm text-gray-500 leading-relaxed mb-4 italic">
-                  "I own 13 items from the classic cloth company and they are by far the best Cloths I've ever owned! They are so soft and hold th..."
-                </p>
-                <button className="text-xs font-bold underline mb-4 block hover:text-gold-500">Read More</button>
-                <span className="text-sm font-bold tracking-wider text-gray-900">Maria P.</span>
+              ))
+            ) : (
+              <div className="col-span-full text-center text-gray-500 italic pb-10">
+                No featured reviews yet. Be the first to verify our quality!
               </div>
-            </div>
-
-            <div className="flex gap-6">
-              <Link href={`/product/elbow-v-neck`} className="relative shrink-0 w-16 h-20 overflow-hidden rounded-sm hover:opacity-80 transition-opacity block">
-                <Image
-                  src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=200"
-                  alt="Product"
-                  fill
-                  className="object-cover"
-                />
-              </Link>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={14} className="fill-gray-900 text-gray-900" />
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-gray-400 font-medium">06/14/25</span>
-                </div>
-                <h3 className="font-serif text-lg mb-2 text-gray-900">I love the Cloths, runs</h3>
-                <p className="text-sm text-gray-500 leading-relaxed mb-4 italic">
-                  "I love the Cloths, runs a little small and I had to exchange it for a larger size. No problem exchanging it, prompt and efficient cu..."
-                </p>
-                <button className="text-xs font-bold underline mb-4 block hover:text-gold-500">Read More</button>
-                <span className="text-sm font-bold tracking-wider text-gray-900">Carmen K.</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>

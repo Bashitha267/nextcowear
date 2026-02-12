@@ -32,6 +32,18 @@ export interface SupabaseProduct {
     product_sizes?: { size: { name: string } }[];
 }
 
+export interface ProductReview {
+    id: string;
+    product_id: string;
+    author_name: string;
+    author_image_url?: string;
+    rating: number;
+    title?: string;
+    content: string;
+    is_approved: boolean;
+    created_at: string;
+}
+
 // Function to fetch all categories and their subcategories
 export async function getCategories() {
     const { data: mainCategories, error: mainError } = await supabase
@@ -236,6 +248,56 @@ export async function getSiteReviews() {
     return data;
 }
 
+// Function to fetch featured site reviews
+export async function getFeaturedReviews(limit: number = 3) {
+    const { data, error } = await supabase
+        .from('site_reviews')
+        .select('*')
+        .eq('is_approved', true)
+        .eq('is_featured', true)
+        .order('created_at', { ascending: false })
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching featured site reviews:', error);
+        return [];
+    }
+    return data;
+}
+
+// Function to fetch approved reviews for a specific product
+export async function getReviewsByProductId(productId: string) {
+    const { data, error } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .eq('product_id', productId)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching reviews for product:', error);
+        return [];
+    }
+    return data as ProductReview[];
+}
+
+// Function to submit a review
+export async function submitReview(reviewData: Omit<ProductReview, 'id' | 'is_approved' | 'created_at'>) {
+    const { data, error } = await supabase
+        .from('product_reviews')
+        .insert([{
+            ...reviewData,
+            is_approved: false // Always needs admin approval
+        }])
+        .select();
+
+    if (error) {
+        console.error('Error submitting review:', error);
+        throw error;
+    }
+    return data;
+}
+
 // Function to fetch approved product reviews
 export async function getProductReviews() {
     const { data, error } = await supabase
@@ -254,6 +316,114 @@ export async function getProductReviews() {
     return data;
 }
 
+
+// Function to create a new order
+export async function createOrder(orderData: any, items: any[]) {
+    // Generate a short, readable order number (e.g., #DC-123456)
+    // Using timestamp suffix for basic uniqueness in low-volume dev
+    const shortId = Date.now().toString().slice(-6) + Math.random().toString().slice(2, 4);
+    const orderNumber = `DC-${shortId}`;
+
+    // 1. Create the order
+    const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+            ...orderData,
+            order_number: orderNumber // Explicitly set if schema doesn't auto-generate it
+        }])
+        .select()
+        .single();
+
+    if (orderError) throw orderError;
+
+    // 2. Create the order items
+    const orderItems = items.map(item => ({
+        order_id: order.id,
+        product_id: item.id,
+        product_name: item.name,
+        product_image_url: item.image,
+        color_name: item.color,
+        size_name: item.size,
+        unit_price: item.price,
+        quantity: item.quantity,
+        subtotal: item.price * item.quantity
+    }));
+
+    const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+    if (itemsError) throw itemsError;
+
+    return order;
+}
+
+// Function to fetch orders for a specific user
+export async function getOrdersByUserId(userId: string) {
+    const { data, error } = await supabase
+        .from('orders')
+        .select(`
+            *,
+            order_items(*)
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching user orders:', error);
+        return [];
+    }
+    return data;
+}
+
+// Function to fetch all orders (Admin)
+export async function getAllOrders(filters?: { status?: string, search?: string }) {
+    let query = supabase
+        .from('orders')
+        .select(`
+            *,
+            order_items(*)
+        `)
+        .order('created_at', { ascending: false });
+
+    if (filters?.status && filters.status !== 'all') {
+        query = query.eq('status', filters.status);
+    }
+
+    if (filters?.search) {
+        // Search by order_number or customer_name
+        query = query.or(`order_number.ilike.%${filters.search}%,customer_name.ilike.%${filters.search}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+        console.error('Error fetching all orders:', error);
+        return [];
+    }
+    return data;
+}
+
+// Function to update order status
+export async function updateOrderStatus(orderId: string, status: string) {
+    const updateData: any = { status, updated_at: new Date().toISOString() };
+
+    if (status === 'shipped') updateData.shipped_at = new Date().toISOString();
+    if (status === 'delivered') updateData.delivered_at = new Date().toISOString();
+    if (status === 'cancelled') updateData.cancelled_at = new Date().toISOString();
+
+    const { data, error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', orderId)
+        .select();
+
+    if (error) {
+        console.error('Error updating order status:', error);
+        throw error;
+    }
+    return data;
+}
 
 // Helper to map DB response to UI Product interface
 function mapSupabaseProductsToUI(data: any[]): Product[] {
