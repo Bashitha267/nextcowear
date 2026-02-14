@@ -25,7 +25,7 @@ import {
 import Link from 'next/link';
 
 export default function Checkout() {
-    const { cart, subtotal, clearCart } = useCart();
+    const { cart, subtotal, clearCart, shipping, total } = useCart();
     const { user } = useAuth();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -110,6 +110,7 @@ export default function Checkout() {
             }
 
             // 2. Prepare Order Data
+            // Uses context values for consistent pricing
             const orderData = {
                 user_id: userId,
                 customer_name: formData.first_name,
@@ -120,7 +121,8 @@ export default function Checkout() {
                 shipping_city: formData.town,
                 shipping_state: 'Lanka', // Default or from town lookup
                 subtotal: subtotal,
-                total: subtotal,
+                shipping_cost: shipping,
+                total: total,
                 payment_method: formData.payment_method,
                 payment_status: formData.payment_method === 'card' ? 'paid' : 'pending',
                 status: 'pending'
@@ -170,6 +172,8 @@ export default function Checkout() {
             </div>
         );
     }
+
+    // We use context values for display
 
     return (
         <div className="min-h-screen pt-32 pb-20 bg-gray-50">
@@ -420,11 +424,11 @@ export default function Checkout() {
                                 </div>
                                 <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-gray-400">
                                     <span>Shipping</span>
-                                    <span className="text-green-600">Calculated later</span>
+                                    <span className="text-gray-900">LKR {shipping.toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-lg font-bold uppercase tracking-wider text-gray-900 pt-2">
                                     <span>Total</span>
-                                    <span className="text-gold-600">LKR {subtotal.toLocaleString()}</span>
+                                    <span className="text-gold-600">LKR {total.toLocaleString()}</span>
                                 </div>
                             </div>
 

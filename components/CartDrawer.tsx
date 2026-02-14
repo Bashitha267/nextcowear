@@ -13,6 +13,8 @@ const CartDrawer = () => {
         updateQuantity,
         totalItems,
         subtotal,
+        shipping,
+        total,
         isCartOpen,
         setIsCartOpen
     } = useCart();
@@ -95,7 +97,14 @@ const CartDrawer = () => {
                                     </div>
 
                                     <div className="mt-1 space-y-1">
-                                        <p className="text-xs text-gray-500 font-medium">Color: <span className="text-gray-900">{item.selectedColor}</span></p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-xs text-gray-500 font-medium">Color: <span className="text-gray-900">{item.selectedColor}</span></p>
+                                            <div
+                                                className="w-3 h-3 rounded-full border border-gray-200 shadow-sm"
+                                                style={{ backgroundColor: item.selectedColor }}
+                                                title={item.selectedColor}
+                                            />
+                                        </div>
                                         <p className="text-xs text-gray-500 font-medium">Size: <span className="text-gray-900">{item.selectedSize}</span></p>
                                     </div>
 
@@ -117,7 +126,7 @@ const CartDrawer = () => {
                                             </button>
                                         </div>
                                         <p className="text-sm font-bold text-gray-900">
-                                            RS {(item.product.price * item.quantity).toLocaleString()}
+                                            LKR {(item.product.price * item.quantity).toLocaleString()}
                                         </p>
                                     </div>
                                 </div>
@@ -132,15 +141,19 @@ const CartDrawer = () => {
                         <div className="space-y-2">
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500 font-medium">Subtotal</span>
-                                <span className="font-bold text-gray-900">RS {subtotal.toLocaleString()}</span>
+                                <span className="font-bold text-gray-900">LKR {subtotal.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-gray-500 font-medium">Shipping</span>
-                                <span className="text-gray-500 italic">Calculated at checkout</span>
+                                <span className="text-gray-900 font-bold">LKR {shipping.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200/50 mt-2">
+                                <span className="text-gray-900">Total</span>
+                                <span className="text-gold-600">LKR {total.toLocaleString()}</span>
                             </div>
                         </div>
 
-                        <div className="pt-4">
+                        <div className="pt-2">
                             <button
                                 onClick={() => {
                                     setIsCartOpen(false);
@@ -152,7 +165,7 @@ const CartDrawer = () => {
                                 <span className="w-full h-full absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity" />
                             </button>
                             <p className="text-[10px] text-gray-400 text-center mt-3">
-                                Taxes and shipping calculated at checkout
+                                Shipping is included in the total
                             </p>
                         </div>
                     </div>

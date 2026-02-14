@@ -59,7 +59,7 @@ export default function WishlistPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                         {products.map((product) => (
                             <div key={product.id} className="group flex flex-col bg-white rounded-sm shadow-sm hover:shadow-xl transition-all duration-300 border border-gold-100/50">
-                                <div className="relative aspect-[4/5] overflow-hidden">
+                                <div className="relative aspect-4/5 overflow-hidden">
                                     <Link href={`/product/${product.id}`} className="block relative w-full h-full">
                                         <Image
                                             src={product.image}
