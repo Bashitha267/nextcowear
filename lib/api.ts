@@ -44,6 +44,17 @@ export interface ProductReview {
     created_at: string;
 }
 
+export interface NavbarSubCategory {
+    name: string;
+    topProducts: { id: string; name: string }[];
+}
+
+export interface NavbarCategory {
+    id: string;
+    name: string;
+    subCategories: NavbarSubCategory[];
+}
+
 // Function to fetch all categories and their subcategories
 export async function getCategories() {
     const { data: mainCategories, error: mainError } = await supabase
@@ -75,6 +86,68 @@ export async function getCategories() {
     }));
 
     return categoriesWithSubs;
+}
+
+// Function to fetch navbar data including top selling products per subcategory
+export async function getNavbarCategories() {
+    // Fetch Main Categories
+    const { data: mainCategories, error: mainError } = await supabase
+        .from('main_categories')
+        .select('id, name, display_order')
+        .order('display_order');
+
+    if (mainError) {
+        console.error('Error fetching main categories:', mainError);
+        return [];
+    }
+
+    // Fetch Sub Categories
+    const { data: subCategories, error: subError } = await supabase
+        .from('sub_categories')
+        .select('id, name, main_category_id, display_order')
+        .order('display_order');
+
+    if (subError) {
+        console.error('Error fetching sub categories:', subError);
+        return [];
+    }
+
+    // Fetch Top Products (Best Sellers)
+    const { data: bestSellers, error: prodError } = await supabase
+        .from('products')
+        .select('id, name, sub_category_id') // We need sub_category_id for mapping
+        .eq('is_best_seller', true)
+        .eq('is_active', true)
+        .limit(100);
+
+    if (prodError) {
+        console.error('Error fetching navbar products:', prodError);
+        return [];
+    }
+
+    // Assemble
+    return mainCategories.map((main: any) => {
+        const subs = subCategories
+            .filter((sub: any) => sub.main_category_id === main.id)
+            .map((sub: any) => {
+                // Find products for this subcategory, limit to 2
+                const products = bestSellers
+                    .filter((p: any) => p.sub_category_id === sub.id)
+                    .slice(0, 2)
+                    .map((p: any) => ({ id: p.id, name: p.name }));
+
+                return {
+                    name: sub.name,
+                    topProducts: products
+                };
+            });
+
+        return {
+            id: main.id,
+            name: main.name,
+            subCategories: subs
+        };
+    });
 }
 
 // Function to fetch best selling products with limit

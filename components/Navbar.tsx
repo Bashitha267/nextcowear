@@ -3,17 +3,18 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, ShoppingBag, User, Menu, X, ChevronDown, LogOut, Settings, Package, UserCircle } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, X, ChevronDown, LogOut, Settings, Package, UserCircle, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { CATEGORIES } from "@/lib/data";
+import { useWishlist } from "@/contexts/WishlistContext";
 import LoginModal from "./LoginModal";
 
 interface NavLink {
     name: string;
     href: string;
-    children?: string[];
+    children?: { name: string; topProducts: { id: string; name: string }[] }[];
 }
 
 const Navbar = () => {
@@ -23,16 +24,17 @@ const Navbar = () => {
     const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
 
-    const [categories, setCategories] = useState<{ name: string, subCategories: string[] }[]>([]);
+    const [categories, setCategories] = useState<{ name: string, subCategories: { name: string, topProducts: { id: string, name: string }[] }[] }[]>([]);
     const { totalItems, setIsCartOpen } = useCart();
+    const { wishlist } = useWishlist();
     const { user, logout, setIsLoginModalOpen } = useAuth();
     const router = useRouter();
     const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
     useEffect(() => {
         const fetchCategories = async () => {
-            const { getCategories } = await import('@/lib/api');
-            const data = await getCategories();
+            const { getNavbarCategories } = await import('@/lib/api');
+            const data = await getNavbarCategories();
             if (data) {
                 setCategories(data);
             }
@@ -57,11 +59,11 @@ const Navbar = () => {
     const navLinks: NavLink[] = [
         { name: "Home", href: "/" },
         { name: "Collections", href: "/collections" },
-        ...(categories.map(cat => ({
+        ...categories.map(cat => ({
             name: cat.name,
             href: `/collections?category=${cat.name}`,
             children: cat.subCategories
-        })) as NavLink[]),
+        })),
     ];
 
     const rightLinks: NavLink[] = [
@@ -104,7 +106,7 @@ const Navbar = () => {
                                 >
                                     <Link
                                         href={link.href}
-                                        className="text-[10px] md:text-[9px] lg:text-[8px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
+                                        className="text-[10px] md:text-[9px] lg:text-[8px] xl:text-[12px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900 flex items-center gap-2 py-4"
                                     >
                                         {link.name}
                                         {link.children && link.children.length > 0 && (
@@ -118,21 +120,36 @@ const Navbar = () => {
                                     {/* Dropdown Menu */}
                                     {link.children && link.children.length > 0 && (
                                         <div className={`absolute top-full left-0 w-64 bg-white shadow-2xl border-t-2 border-gold-500 py-8 px-10 transition-all duration-300 origin-top transform ${activeDropdown === link.name ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0 pointer-events-none'}`}>
-                                            <div className="flex flex-col space-y-5 border-l-2 border-gold-100 pl-5">
+                                            <div className="flex flex-col space-y-4 border-l-2 border-gold-100 pl-5">
                                                 <Link
                                                     href={link.href}
-                                                    className="text-[14px] font-extrabold tracking-[0.2em] uppercase text-gold-600 hover:text-gold-800 transition-colors"
+                                                    className="text-[12px] font-extrabold tracking-[0.2em] uppercase text-gold-600 hover:text-gold-800 transition-colors mb-2"
                                                 >
                                                     View All
                                                 </Link>
-                                                {link.children.map((sub: string) => (
-                                                    <Link
-                                                        key={sub}
-                                                        href={`/collections?category=${link.name}&sub=${sub}`}
-                                                        className="text-[13px] font-bold tracking-[0.2em] uppercase text-gray-400 hover:text-gold-600 transition-colors whitespace-nowrap"
-                                                    >
-                                                        {sub}
-                                                    </Link>
+                                                {link.children.map((sub) => (
+                                                    <div key={sub.name} className="group/sub">
+                                                        <Link
+                                                            href={`/collections?category=${link.name}&sub=${sub.name}`}
+                                                            className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-900 hover:text-gold-600 transition-colors whitespace-nowrap block mb-1"
+                                                        >
+                                                            {sub.name}
+                                                        </Link>
+                                                        {sub.topProducts && sub.topProducts.length > 0 && (
+                                                            <div className="pl-2 space-y-1 mt-1 border-l-2 border-gray-300 ml-1">
+                                                                {sub.topProducts.map((prod) => (
+                                                                    <Link
+                                                                        key={prod.id}
+                                                                        href={`/product/${prod.id}`}
+                                                                        className="text-[12px] md:text-[12px] text-gray-500 hover:text-gold-500 block truncate transition-colors max-w-[180px]"
+                                                                        title={prod.name}
+                                                                    >
+                                                                        {prod.name}
+                                                                    </Link>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>
@@ -143,7 +160,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Center Section: Logo (Shrink-0) */}
-                    <div className="shrink-0 flex justify-center relative z-50">
+                    <div className="shrink-0 flex justify-center relative z-50  mr-10 md:mr-0 md:mx-6">
                         <Link href="/" className="block relative h-14 lg:h-16 w-28 md:w-36 lg:w-56" onClick={() => setIsMobileMenuOpen(false)}>
                             <Image
                                 src="/logo.png"
@@ -162,7 +179,7 @@ const Navbar = () => {
                                 <Link
                                     key={link.name}
                                     href={link.href}
-                                    className="text-[10px] md:text-[9px] lg:text-[8px] xl:text-[14px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
+                                    className="text-[10px] md:text-[9px] lg:text-[8px] xl:text-[12px] font-bold tracking-[0.2em] uppercase hover:text-gold-600 transition-colors text-gray-900"
                                 >
                                     {link.name}
                                 </Link>
@@ -170,9 +187,9 @@ const Navbar = () => {
                         </div>
 
                         <div className="flex items-center space-x-4 lg:space-x-7 relative z-50">
-                            <button className="text-gray-900 hover:text-gold-600 transition-colors" title="Search">
+                            {/* <button className="text-gray-900 hover:text-gold-600 transition-colors " title="Search">
                                 <Search size={24} strokeWidth={1} />
-                            </button>
+                            </button> */}
                             <button
                                 className="text-gray-900 hover:text-gold-600 transition-all relative group/cart"
                                 title="Shopping Bag"
@@ -185,6 +202,12 @@ const Navbar = () => {
                                     </span>
                                 )}
                             </button>
+                            <Link href="/wishlist" className="text-gray-900 hover:text-gold-600 transition-colors relative" title="Wishlist">
+                                <Heart size={24} strokeWidth={1} />
+                                {wishlist.length > 0 && (
+                                    <span className="absolute top-0 right-0 w-2 h-2 bg-gold-600 rounded-full border border-white"></span>
+                                )}
+                            </Link>
 
                             {/* User Account Dropdown */}
                             <div className="relative">
@@ -287,15 +310,30 @@ const Navbar = () => {
                                                 >
                                                     View All {link.name}
                                                 </Link>
-                                                {link.children.map((sub: string) => (
-                                                    <Link
-                                                        key={sub}
-                                                        href={`/collections?category=${link.name}&sub=${sub}`}
-                                                        className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400"
-                                                        onClick={() => setIsMobileMenuOpen(false)}
-                                                    >
-                                                        {sub}
-                                                    </Link>
+                                                {link.children.map((sub) => (
+                                                    <div key={sub.name}>
+                                                        <Link
+                                                            href={`/collections?category=${link.name}&sub=${sub.name}`}
+                                                            className="text-[11px] font-bold tracking-[0.2em] uppercase text-gray-400 block mb-2 hover:text-gold-600"
+                                                            onClick={() => setIsMobileMenuOpen(false)}
+                                                        >
+                                                            {sub.name}
+                                                        </Link>
+                                                        {sub.topProducts && sub.topProducts.length > 0 && (
+                                                            <div className="pl-3 mb-4 space-y-2 border-l border-gray-100 ml-1">
+                                                                {sub.topProducts.map((prod) => (
+                                                                    <Link
+                                                                        key={prod.id}
+                                                                        href={`/product/${prod.id}`}
+                                                                        className="text-[10px] text-gray-500 block truncate"
+                                                                        onClick={() => setIsMobileMenuOpen(false)}
+                                                                    >
+                                                                        {prod.name}
+                                                                    </Link>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}

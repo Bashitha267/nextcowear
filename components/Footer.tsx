@@ -21,18 +21,14 @@ const Footer = () => {
         fetchCategories();
     }, []);
 
-    // Flatten categories for shop links or just show main ones plus a few subs
-    // For footer, usually we show main categories and maybe "All"
+    // Simplified links as per request
     const shopLinks = [
-        ...categories.flatMap(cat => [
-            { name: `${cat.name} Collection`, href: `/collections?category=${cat.name}` },
-            // Add first 2 subcategories for each main category if you want detailed footer
-            ...cat.subCategories.slice(0, 2).map(sub => ({
-                name: `${cat.name} ${sub}`,
-                href: `/collections?category=${cat.name}&sub=${sub}`
-            }))
-        ]),
-        { name: "All Collections", href: "/collections" }
+        { name: "Women", href: "/collections?category=Women" },
+        { name: "Men", href: "/collections?category=Men" },
+        { name: "Kids", href: "/collections?category=Kids" },
+        { name: "Why Us", href: "/why-us" },
+        { name: "Reviews", href: "/reviews" }, // Assuming /reviews exists or section in home
+        { name: "Our Heritage", href: "/our-heritage" }
     ];
 
     return (
@@ -41,9 +37,14 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-20">
                     {/* About Us */}
                     <div className="space-y-6">
-                        <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-gold-700 border-b border-gold-100 pb-4 inline-block w-full">
-                            About Us
-                        </h4>
+                        <Link href="/" className="block relative w-32 h-16">
+                            <Image
+                                src="/logo.png"
+                                alt="DressCo Logo"
+                                fill
+                                className="object-contain"
+                            />
+                        </Link>
                         <div className="space-y-4">
                             <p className="text-sm text-gray-500 leading-relaxed max-w-xs transition-colors hover:text-gray-700">
                                 DressCo was founded to redefine the fashion industry in Sri Lanka by creating ethically made luxury essentials. We are proud to present our range of Premium fabric Cloths, meticulously crafted for the conscious individual who values quality above all else.
@@ -51,12 +52,6 @@ const Footer = () => {
                             <p className="text-sm text-gray-500 italic">
                                 From Our Island to Your Wardrobe!
                             </p>
-                            <Link
-                                href="/our-heritage"
-                                className="text-xs font-bold tracking-[0.2em] uppercase text-gray-900 border-b-2 border-gold-500 pb-1 hover:text-gold-500 transition-colors inline-block"
-                            >
-                                Read our legacy
-                            </Link>
                         </div>
                     </div>
 

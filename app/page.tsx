@@ -2,12 +2,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Star, ChevronLeft, ChevronRight, Quote, Plus, Feather, Scissors, Leaf } from "lucide-react";
 import TestimonialsDrawer from "@/components/TestimonialsDrawer";
-import { getBestSellers, getFeaturedReviews } from "@/lib/api";
 import BestSellersSection from "@/components/BestSellersSection";
+import ReviewsCarousel from "@/components/ReviewsCarousel";
+import { getBestSellers, getFeaturedReviews, getSiteReviews } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 export default async function Home() {
   const bestSellers = await getBestSellers(50);
-  const reviews = await getFeaturedReviews(3);
+  const reviews = await getFeaturedReviews(9); // Fetch more reviews for carousel
+
+  // Fetch total count of approved reviews
+  const { count: totalReviews } = await supabase
+    .from('site_reviews')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_approved', true);
 
   return (
     <div className="relative min-h-screen bg-white pt-20">
@@ -165,70 +173,7 @@ export default async function Home() {
       <BestSellersSection products={bestSellers} />
 
       {/* Reviews Section */}
-      <section className="py-20 bg-gold-100/30 border-t border-gold-200/40 relative">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gold-500 rounded-full blur-sm opacity-20"></div>
-        <div className="w-full px-4 md:px-10">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
-            <div>
-              <h2 className="text-2xl font-serif text-gray-900 inline-block mr-4">
-                Real Reviews From Real Customers
-              </h2>
-              <Link href="/reviews" className="text-sm text-gray-500 underline hover:text-gold-500 transition-colors">
-                See all reviews
-              </Link>
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={16} className="fill-gray-900 text-gray-900" />
-                ))}
-                <span className="ml-2 text-sm text-gray-500">4012 Reviews</span>
-              </div>
-              <div className="flex gap-2">
-                <button className="p-2 border border-gray-200 rounded-full hover:border-gold-500 hover:text-gold-500 transition-colors">
-                  <ChevronLeft size={20} />
-                </button>
-                <button className="p-2 border border-gray-200 rounded-full hover:border-gold-500 hover:text-gold-500 transition-colors">
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {reviews && reviews.length > 0 ? (
-              reviews.map((review) => (
-                <div key={review.id} className="flex gap-6 group hover:bg-white/50 p-4 rounded-xl transition-all">
-                  <div className="shrink-0 w-16 h-16 rounded-full border border-gray-100 flex items-center justify-center bg-gray-50 group-hover:bg-gold-50 transition-colors">
-                    <Quote size={24} className="text-gold-500" />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={14} className={i < review.rating ? "fill-gray-900 text-gray-900" : "text-gray-200"} />
-                        ))}
-                      </div>
-                      <span className="text-[10px] text-gray-400 font-medium">
-                        {new Date(review.created_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    {review.title && <h3 className="font-serif text-lg mb-2 text-gray-900">{review.title}</h3>}
-                    <p className="text-sm text-gray-500 leading-relaxed mb-4 italic line-clamp-3">
-                      "{review.content}"
-                    </p>
-                    <span className="text-sm font-bold tracking-wider text-gray-900">{review.author_name}</span>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="col-span-full text-center text-gray-500 italic pb-10">
-                No featured reviews yet. Be the first to verify our quality!
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      <ReviewsCarousel initialReviews={reviews || []} totalReviews={totalReviews || 0} />
 
       {/* Trust bar */}
       <section className="py-24 bg-gold-50/80 relative overflow-hidden">

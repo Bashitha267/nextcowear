@@ -23,6 +23,8 @@ import { Product } from "@/lib/data";
 import TestimonialsDrawer from "@/components/TestimonialsDrawer";
 import { getProductById, getRelatedProducts, getReviewsByProductId, submitReview, ProductReview } from "@/lib/api";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-hot-toast";
 import { X, Camera, Loader2 } from "lucide-react";
 
@@ -55,6 +57,24 @@ const ProductDetailsPage = () => {
     const [uploadingImage, setUploadingImage] = useState(false);
 
     const { addToCart } = useCart();
+    const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+    const { user, setIsLoginModalOpen } = useAuth();
+
+    // Helper for Wishlist
+    const handleWishlistToggle = async () => {
+        if (!product) return;
+
+        if (!user) {
+            setIsLoginModalOpen(true);
+            return;
+        }
+
+        if (isInWishlist(product.id)) {
+            await removeFromWishlist(product.id);
+        } else {
+            await addToWishlist(product.id);
+        }
+    };
 
     useEffect(() => {
         const fetchProductData = async () => {
@@ -322,6 +342,16 @@ const ProductDetailsPage = () => {
                                     <span className="relative z-10">{isAdding ? "Adding..." : "Add to Cart"}</span>
                                     {!isAdding && <ShoppingBag size={18} className="relative z-10 group-hover:scale-110 transition-transform" />}
                                     <div className="absolute inset-0 bg-gold-600 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out" />
+                                </button>
+                                <button
+                                    onClick={handleWishlistToggle}
+                                    className={`w-full sm:w-16 py-6 sm:py-0 flex items-center justify-center border-2 border-gold-100 rounded-sm hover:border-gold-500 transition-all gap-2 ${product && isInWishlist(product.id) ? 'bg-gold-50 border-gold-500 text-gold-500' : 'bg-white text-gray-400 hover:text-gold-500'}`}
+                                    title={product && isInWishlist(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                                >
+                                    <span className="text-xs font-bold tracking-[0.4em] uppercase sm:hidden">
+                                        {product && isInWishlist(product.id) ? "In Wishlist" : "Add to Wishlist"}
+                                    </span>
+                                    <Heart size={20} className={product && isInWishlist(product.id) ? "fill-current" : ""} />
                                 </button>
                             </div>
 

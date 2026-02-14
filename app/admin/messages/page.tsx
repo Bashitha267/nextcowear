@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, Send, User, Loader2, MessageCircle, ChevronRight, Clock } from 'lucide-react';
+import { Search, Send, User, Loader2, MessageCircle, ChevronRight, Clock, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'react-hot-toast';
@@ -16,6 +16,7 @@ interface Conversation {
         first_name: string;
         last_name: string;
         email: string;
+        phone_number: string;
     };
 }
 
@@ -93,7 +94,7 @@ export default function AdminMessagesPage() {
         try {
             const { data, error } = await supabase
                 .from('chat_conversations')
-                .select('*, users(first_name, last_name, email)')
+                .select('*, users(first_name, last_name, email, phone_number)')
                 .order('last_message_at', { ascending: false });
 
             if (error) throw error;
@@ -175,6 +176,7 @@ export default function AdminMessagesPage() {
 
     const filteredConversations = conversations.filter(c =>
         c.users.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (c.users.phone_number && c.users.phone_number.includes(searchTerm)) ||
         (`${c.users.first_name} ${c.users.last_name}`).toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -190,7 +192,7 @@ export default function AdminMessagesPage() {
     return (
         <div className="h-[calc(100vh-140px)] flex bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
             {/* Sidebar List - Dark Themes */}
-            <div className="w-96 border-r border-gray-800 flex flex-col bg-gray-900">
+            <div className={`${selectedConv ? 'hidden md:flex' : 'flex'} w-full md:w-96 border-r border-gray-800 flex-col bg-gray-900 transition-all duration-300`}>
                 <div className="p-6 border-b border-gray-800 bg-gray-900/50">
                     <h1 className="text-2xl font-serif font-bold text-white mb-4">Conversations</h1>
                     <div className="relative">
@@ -220,30 +222,31 @@ export default function AdminMessagesPage() {
                                     }`}
                             >
                                 <div className="flex items-center gap-4 min-w-0">
+                                    {/* Green Dot for unread messages (Left side) */}
+                                    {conv.unread_count_admin > 0 && (
+                                        <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)] shrink-0"></div>
+                                    )}
+
                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${selectedConv?.id === conv.id ? 'bg-gold-500 text-white' : 'bg-gray-800 text-gold-500'
                                         }`}>
                                         <User size={24} />
                                     </div>
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex items-center justify-between">
                                             <h4 className={`font-bold truncate ${selectedConv?.id === conv.id ? 'text-white' : 'text-gray-200'}`}>
                                                 {conv.users.first_name} {conv.users.last_name}
+                                                <span className={`ml-2 text-[10px] font-normal opacity-70 ${selectedConv?.id === conv.id ? 'text-gray-300' : 'text-gray-500'}`}>
+                                                    {conv.users.phone_number}
+                                                </span>
                                             </h4>
+                                            <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wider ml-2">
+                                                {conv.last_message_at ? new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                                            </p>
                                         </div>
                                         <p className={`text-xs truncate mt-0.5 ${conv.unread_count_admin > 0 ? 'text-gold-400 font-bold' : 'text-gray-500'}`}>
                                             {conv.last_message || 'No messages yet'}
                                         </p>
                                     </div>
-                                </div>
-                                <div className="text-right shrink-0 ml-2">
-                                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-wider mb-2">
-                                        {conv.last_message_at ? new Date(conv.last_message_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
-                                    </p>
-                                    {conv.unread_count_admin > 0 && (
-                                        <span className="inline-flex items-center justify-center w-5 h-5 bg-gold-600 text-white text-[10px] font-bold rounded-full shadow-lg animate-pulse">
-                                            {conv.unread_count_admin}
-                                        </span>
-                                    )}
                                 </div>
                             </button>
                         ))
@@ -252,23 +255,26 @@ export default function AdminMessagesPage() {
             </div>
 
             {/* Chat Area - Light Theme */}
-            <div className="flex-1 flex flex-col bg-gray-50">
+            <div className={`flex-1 flex-col bg-gray-50 ${selectedConv ? 'flex' : 'hidden md:flex'}`}>
                 {selectedConv ? (
                     <>
                         {/* Header */}
-                        <div className="p-6 border-b border-gray-200 bg-white flex items-center justify-between shadow-xs">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white shadow-md">
-                                    <User size={24} />
+                        <div className="p-4 md:p-6 border-b border-gray-200 bg-white flex items-center justify-between shadow-xs sticky top-0 z-10">
+                            <div className="flex items-center gap-3 md:gap-4">
+                                <button
+                                    onClick={() => setSelectedConv(null)}
+                                    className="md:hidden p-2 -ml-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                                >
+                                    <ArrowLeft size={20} />
+                                </button>
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gray-900 flex items-center justify-center text-white shadow-md cursor-pointer">
+                                    <User size={20} className="md:w-6 md:h-6" />
                                 </div>
                                 <div>
-                                    <h2 className="font-bold text-gray-900 border-none outline-none text-lg">
+                                    <h2 className="font-bold text-gray-900 border-none outline-none text-base md:text-lg leading-tight">
                                         {selectedConv.users.first_name} {selectedConv.users.last_name}
                                     </h2>
-                                    <div className="flex items-center gap-1.5 mt-0.5">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{selectedConv.users.email}</p>
-                                    </div>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{selectedConv.users.phone_number || selectedConv.users.email}</p>
                                 </div>
                             </div>
                         </div>
@@ -285,8 +291,8 @@ export default function AdminMessagesPage() {
                                 >
                                     <div className={`max-w-[70%] ${msg.sender_type === 'admin' ? 'text-right' : 'text-left'}`}>
                                         <div className={`inline-block p-5 rounded-3xl text-sm shadow-sm transition-all hover:shadow-md ${msg.sender_type === 'admin'
-                                                ? 'bg-gray-900 text-white rounded-tr-none'
-                                                : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
+                                            ? 'bg-gray-900 text-white rounded-tr-none'
+                                            : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
                                             }`}>
                                             <p className="leading-relaxed">{msg.content}</p>
                                         </div>
@@ -322,7 +328,7 @@ export default function AdminMessagesPage() {
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center p-20 bg-white">
+                    <div className="hidden md:flex flex-1 flex-col items-center justify-center text-center p-20 bg-white">
                         <div className="w-24 h-24 bg-gold-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
                             <MessageCircle className="text-gold-600 w-12 h-12" />
                         </div>

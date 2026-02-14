@@ -3,7 +3,11 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Plus, ChevronRight } from "lucide-react";
+import { Star, Plus, ChevronRight, ShoppingBag, Heart } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "react-hot-toast";
 import { Product } from "@/lib/data"; // or from lib/api if I define it there, using data for now as it's shared
 
 interface BestSellersSectionProps {
@@ -12,6 +16,9 @@ interface BestSellersSectionProps {
 
 const BestSellersSection = ({ products }: BestSellersSectionProps) => {
     const [activeTab, setActiveTab] = useState<'Women' | 'Men' | 'Kids'>('Women');
+    const { addToCart } = useCart();
+    const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+    const { user, setIsLoginModalOpen } = useAuth();
 
     const filteredProducts = useMemo(() => {
         return products.filter(p => p.category === activeTab).slice(0, 4);
@@ -72,9 +79,39 @@ const BestSellersSection = ({ products }: BestSellersSectionProps) => {
                                             </div>
                                         </div>
                                     )}
-                                    <button className="absolute bottom-4 right-4 bg-white/95 p-3 rounded-full shadow-lg opacity-0 translate-y-4 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all hover:bg-gold-500 hover:text-white z-20">
-                                        <Plus size={20} />
-                                    </button>
+                                    <div className="absolute bottom-4 right-4 flex gap-2 opacity-0 translate-y-4 group-hover/item:opacity-100 group-hover/item:translate-y-0 transition-all z-20">
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (!user) {
+                                                    setIsLoginModalOpen(true);
+                                                    return;
+                                                }
+                                                if (isInWishlist(product.id)) {
+                                                    removeFromWishlist(product.id);
+                                                } else {
+                                                    addToWishlist(product.id);
+                                                }
+                                            }}
+                                            className={`p-3 rounded-full shadow-lg transition-all hover:scale-110 ${isInWishlist(product.id) ? 'bg-gold-500 text-white' : 'bg-white/95 text-gray-900 hover:text-gold-500'}`}
+                                            title={isInWishlist(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                                        >
+                                            <Heart size={18} className={isInWishlist(product.id) ? "fill-current" : ""} />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                const defaultSize = product.sizes?.[0] || "";
+                                                const defaultColor = product.colors?.classic?.[0]?.name || product.colors?.seasonal?.[0]?.name || "";
+                                                addToCart(product, 1, defaultSize, defaultColor);
+                                                toast.success("Added to cart");
+                                            }}
+                                            className="p-3 rounded-full shadow-lg bg-white/95 text-gray-900 transition-all hover:bg-gray-900 hover:text-white hover:scale-110"
+                                            title="Add to Cart"
+                                        >
+                                            <ShoppingBag size={18} />
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="text-center px-2">
                                     <Link href={`/product/${product.id}`} className="block group/title">

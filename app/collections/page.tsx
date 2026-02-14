@@ -16,10 +16,16 @@ import {
     Plus,
     Minus,
     SlidersHorizontal,
-    ArrowRight
+    ArrowRight,
+    Heart,
+    ShoppingBag
 } from "lucide-react";
 import { Product } from "@/lib/data"; // Keep Product type if still used
 import { getProducts, getCategories, getFilterOptions } from '@/lib/api';
+import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "react-hot-toast";
 
 // Define Category type if not already defined elsewhere
 interface Category {
@@ -48,6 +54,27 @@ const CollectionsContent = () => {
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const productsPerPage = 9;
+
+    const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+    const { user, setIsLoginModalOpen } = useAuth();
+    const { addToCart } = useCart();
+
+    // Helper for Wishlist
+    const handleWishlistToggle = async (e: React.MouseEvent, productId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!user) {
+            setIsLoginModalOpen(true);
+            return;
+        }
+
+        if (isInWishlist(productId)) {
+            await removeFromWishlist(productId);
+        } else {
+            await addToWishlist(productId);
+        }
+    };
 
     // Fetch Initial Data
     useEffect(() => {
@@ -405,7 +432,6 @@ const CollectionsContent = () => {
                                                 />
                                             )}
 
-                                            {/* Ribbon Badges - Top Left */}
                                             {(product.isNew || product.isBestSeller || product.isFeatured) && (
                                                 <div className="absolute top-0 left-0 w-28 h-28 overflow-hidden z-20 pointer-events-none">
                                                     <div className={`absolute -left-9 top-5 w-40 -rotate-45 text-white text-[10px] font-bold tracking-widest uppercase py-1.5 text-center shadow-lg backdrop-blur-md 
@@ -416,10 +442,31 @@ const CollectionsContent = () => {
                                             )}
                                         </Link>
 
+                                        {/* Wishlist Button - Top Right */}
+                                        <button
+                                            onClick={(e) => handleWishlistToggle(e, product.id)}
+                                            className={`absolute top-4 right-4 p-2.5 rounded-full shadow-lg transition-all z-20 hover:scale-110 active:scale-90 ${isInWishlist(product.id) ? 'bg-gold-500 text-white' : 'bg-white/95 text-gray-400 hover:text-gold-500'}`}
+                                            title={isInWishlist(product.id) ? "Remove from Wishlist" : "Add to Wishlist"}
+                                        >
+                                            <div className={isInWishlist(product.id) ? "animate-in zoom-in spin-in-12 duration-300" : ""}>
+                                                <Heart size={18} className={isInWishlist(product.id) ? "fill-current" : ""} />
+                                            </div>
+                                        </button>
+
                                         {/* Quick Add Bottom Bar */}
                                         <div className="absolute bottom-0 left-0 w-full translate-y-full group-hover:translate-y-0 transition-transform duration-500 z-20">
-                                            <button className="w-full bg-white/95 backdrop-blur-md text-gray-900 border-t border-gold-200 py-5 text-[10px] font-extrabold tracking-[0.4em] uppercase hover:bg-gold-500 hover:text-white transition-all shadow-2xl">
-                                                Quick View
+                                            <button
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    const defaultSize = product.sizes?.[0] || "";
+                                                    const defaultColor = product.colors?.classic?.[0]?.name || product.colors?.seasonal?.[0]?.name || "";
+                                                    addToCart(product, 1, defaultSize, defaultColor);
+                                                    toast.success("Added to cart");
+                                                }}
+                                                className="w-full bg-white/95 backdrop-blur-md text-gray-900 border-t border-gold-200 py-4 text-[10px] font-extrabold tracking-[0.4em] uppercase hover:bg-gold-500 hover:text-white transition-all shadow-2xl flex items-center justify-center gap-2"
+                                            >
+                                                Add to Cart <ShoppingBag size={14} />
                                             </button>
                                         </div>
                                     </div>
