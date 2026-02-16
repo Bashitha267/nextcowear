@@ -59,7 +59,7 @@ export default function ReviewsCarousel({ initialReviews, totalReviews }: Review
     // The user asked for "real reviews count". We can pass that as a prop.
 
     return (
-        <section className="py-20 bg-gold-100/30 border-t border-gold-200/40 relative">
+        <section className="py-20 bg-[#FAF9F6] border-t border-gray-100 relative">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-1 bg-gold-500 rounded-full blur-sm opacity-20"></div>
             <div className="w-full px-4 md:px-10">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">

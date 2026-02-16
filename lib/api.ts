@@ -55,6 +55,15 @@ export interface NavbarCategory {
     subCategories: NavbarSubCategory[];
 }
 
+export interface FAQ {
+    id: string;
+    question: string;
+    answer: string;
+    display_order: number;
+    is_active: boolean;
+    created_at?: string;
+}
+
 // Function to fetch all categories and their subcategories
 export async function getCategories() {
     const { data: mainCategories, error: mainError } = await supabase
@@ -515,12 +524,107 @@ export async function updateOrderStatus(orderId: string, status: string) {
     return data;
 }
 
+// Function to fetch New Arrivals
+export async function getNewArrivals(limit: number = 20) {
+    const { data, error } = await supabase
+        .from('products')
+        .select(`
+            id,
+            name,
+            regular_price,
+            sale_price,
+            is_new_arrival,
+            is_best_seller,
+            rating,
+            review_count,
+            main_image,
+            additional_images,
+            description,
+            main_category:main_categories(name),
+            sub_category:sub_categories(name),
+            product_colors(color:colors(name, hex_value)),
+            product_sizes(size:sizes(name))
+        `)
+        .eq('is_new_arrival', true)
+        .eq('is_active', true)
+        .limit(limit);
+
+    if (error) {
+        console.error('Error fetching new arrivals:', error);
+        return [];
+    }
+
+    return mapSupabaseProductsToUI(data);
+}
+
+// --- FAQ Functions ---
+
+export async function getFAQs() {
+    const { data, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching FAQs:', error);
+        return [];
+    }
+    return data as FAQ[];
+}
+
+export async function getAllFAQs() {
+    const { data, error } = await supabase
+        .from('faqs')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+    if (error) {
+        console.error('Error fetching all FAQs:', error);
+        return [];
+    }
+    return data as FAQ[];
+}
+
+export async function createFAQ(faq: Omit<FAQ, 'id' | 'created_at'>) {
+    const { data, error } = await supabase
+        .from('faqs')
+        .insert([faq])
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export async function updateFAQ(id: string, updates: Partial<FAQ>) {
+    const { data, error } = await supabase
+        .from('faqs')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export async function deleteFAQ(id: string) {
+    const { error } = await supabase
+        .from('faqs')
+        .delete()
+        .eq('id', id);
+
+    if (error) throw error;
+}
+
 // Helper to map DB response to UI Product interface
 function mapSupabaseProductsToUI(data: any[]): Product[] {
     return data.map((item) => ({
         id: item.id,
         name: item.name,
-        category: (item.main_category?.name || 'Women') as any, // Default or strictly typed
+        // Use the actual category name from DB, fallback to 'Women' only if absolutely missing, but ideally we want to know if it's 'Kids'
+        category: (item.main_category?.name || 'Women') as any,
         subCategory: item.sub_category?.name || '',
         price: Number(item.sale_price) || Number(item.regular_price),
         originalPrice: item.sale_price ? Number(item.regular_price) : undefined,

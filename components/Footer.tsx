@@ -81,14 +81,13 @@ const Footer = () => {
                         </h4>
                         <ul className="space-y-4">
                             {[
-                                "Returns",
+
                                 "Reviews",
-                                "FAQs",
-                                "Size Charts",
-                                "Care Guide",
-                                "Sustainable Living",
+
+
+
                                 "Terms & Privacy",
-                                "Accessibility Statement",
+
                             ].map((item) => (
                                 <li key={item}>
                                     <Link

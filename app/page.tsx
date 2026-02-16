@@ -3,13 +3,20 @@ import Link from "next/link";
 import { ArrowRight, Star, ChevronLeft, ChevronRight, Quote, Plus, Feather, Scissors, Leaf } from "lucide-react";
 import TestimonialsDrawer from "@/components/TestimonialsDrawer";
 import BestSellersSection from "@/components/BestSellersSection";
+import NewArrivalsSection from "@/components/NewArrivalsSection";
+import FAQSection from "@/components/FAQSection";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
-import { getBestSellers, getFeaturedReviews, getSiteReviews } from "@/lib/api";
+import { getBestSellers, getFeaturedReviews, getSiteReviews, getNewArrivals, getFAQs } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function Home() {
-  const bestSellers = await getBestSellers(50);
+  const bestSellers = await getBestSellers(100); // Increased limit to ensure we get enough products for all categories
+  const newArrivals = await getNewArrivals(8);
   const reviews = await getFeaturedReviews(9); // Fetch more reviews for carousel
+  const faqs = await getFAQs();
 
   // Fetch total count of approved reviews
   const { count: totalReviews } = await supabase
@@ -18,9 +25,9 @@ export default async function Home() {
     .eq('is_approved', true);
 
   return (
-    <div className="relative min-h-screen bg-white pt-20">
+    <div className="relative min-h-screen bg-[#FDFBF7] pt-20">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden py-12 lg:py-0 bg-gold-50/40 lg:px-20">
+      <section className="relative min-h-[90vh] flex items-center overflow-hidden py-12 lg:py-0 bg-gold-50/20 lg:px-20">
         <div className="w-full px-4 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center z-10">
           <div className="order-2 lg:order-1">
             <span className="inline-block text-gold-600 font-medium tracking-[0.3em] uppercase mb-4 animate-in fade-in slide-in-from-bottom duration-700">
@@ -169,11 +176,17 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* New Arrivals Section */}
+      <NewArrivalsSection products={newArrivals} />
+
       {/* Best Selling Section */}
       <BestSellersSection products={bestSellers} />
 
       {/* Reviews Section */}
       <ReviewsCarousel initialReviews={reviews || []} totalReviews={totalReviews || 0} />
+
+      {/* FAQ Section */}
+      <FAQSection faqs={faqs} />
 
       {/* Trust bar */}
       <section className="py-24 bg-gold-50/80 relative overflow-hidden">
@@ -227,6 +240,9 @@ export default async function Home() {
           </Link>
         </div>
       </section>
+
+
     </div>
   );
 }
+

@@ -25,7 +25,7 @@ const BestSellersSection = ({ products }: BestSellersSectionProps) => {
     }, [products, activeTab]);
 
     return (
-        <section className="py-20 bg-gold-50">
+        <section className="py-20 bg-white">
             <div className="w-full px-4 md:px-10">
                 <div className="text-center mb-16">
                     <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gray-500 mb-6 block">
@@ -51,7 +51,7 @@ const BestSellersSection = ({ products }: BestSellersSectionProps) => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
                         {filteredProducts.map((product) => (
                             <div key={product.id} className="flex flex-col group/item transition-all duration-500 hover:-translate-y-2">
-                                <div className="relative aspect-[4/5] overflow-hidden mb-6 border border-gold-50 hover:border-gold-300 transition-all duration-300 rounded-sm shadow-sm group-hover/item:shadow-xl">
+                                <div className="relative aspect-4/5 overflow-hidden mb-6 border border-gold-50 hover:border-gold-300 transition-all duration-300 rounded-sm shadow-sm group-hover/item:shadow-xl">
                                     <Link href={`/product/${product.id}`} className="block relative w-full h-full">
                                         {/* Primary Image */}
                                         <Image
