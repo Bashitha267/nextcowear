@@ -18,7 +18,7 @@ const FAQSection = ({ faqs }: FAQSectionProps) => {
     if (!faqs || faqs.length === 0) return null;
 
     return (
-        <section className="py-20 bg-gold-50/50 border-t border-gold-100">
+        <section id="faq" className="py-20 bg-gold-50/50 border-t border-gold-100">
             <div className="w-full px-4 md:px-10">
                 <div className="text-center mb-16">
                     <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-gold-600 mb-4 block">

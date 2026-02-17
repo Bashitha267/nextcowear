@@ -6,9 +6,11 @@ import Image from "next/image";
 // import { Visa, Mastercard, Amex } from 'react-svg-credit-card-payment-icons';
 import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin, Leaf } from "lucide-react";
 import { FaCcVisa, FaCcMastercard, FaCcAmex } from "react-icons/fa";
+import LegalModal from "./LegalModal";
 
 const Footer = () => {
     const [categories, setCategories] = useState<{ name: string, subCategories: string[] }[]>([]);
+    const [legalModal, setLegalModal] = useState<{ isOpen: boolean; type: "Size Chart" | "Refund Policy" | "Shipping Policy" | "Terms & Privacy" }>({ isOpen: false, type: "Refund Policy" });
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -81,25 +83,39 @@ const Footer = () => {
                         </h4>
                         <ul className="space-y-4">
                             {[
-
-                                "Reviews",
-
-
-
-                                "Terms & Privacy",
-
+                                { name: "Reviews", href: "/reviews" },
+                                { name: "FAQs", href: "/#faq" },
+                                { name: "Size Chart", isModal: true },
+                                { name: "Refund Policy", isModal: true },
+                                { name: "Shipping Policy", isModal: true },
+                                { name: "Terms & Privacy", isModal: true },
                             ].map((item) => (
-                                <li key={item}>
-                                    <Link
-                                        href={`/${item.toLowerCase().replace(/\s+/g, "-")}`}
-                                        className="text-sm text-gray-500 hover:text-gold-500 transition-colors font-medium"
-                                    >
-                                        {item}
-                                    </Link>
+                                <li key={item.name}>
+                                    {item.isModal ? (
+                                        <button
+                                            onClick={() => setLegalModal({ isOpen: true, type: item.name as any })}
+                                            className="text-sm text-gray-500 hover:text-gold-500 transition-colors font-medium"
+                                        >
+                                            {item.name}
+                                        </button>
+                                    ) : (
+                                        <Link
+                                            href={item.href || "/"}
+                                            className="text-sm text-gray-500 hover:text-gold-500 transition-colors font-medium"
+                                        >
+                                            {item.name}
+                                        </Link>
+                                    )}
                                 </li>
                             ))}
                         </ul>
                     </div>
+
+                    <LegalModal
+                        isOpen={legalModal.isOpen}
+                        onClose={() => setLegalModal({ ...legalModal, isOpen: false })}
+                        type={legalModal.type}
+                    />
 
                     {/* Connect */}
                     <div className="space-y-6">
@@ -110,17 +126,17 @@ const Footer = () => {
                             <div className="space-y-4">
                                 <div className="flex items-center gap-3 text-sm text-gray-500">
                                     <Phone size={16} className="text-gold-500" />
-                                    <span className="font-semibold">+94 112 345 678</span>
+                                    <span className="font-semibold">077 126 0404</span>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm text-gray-500">
                                     <Mail size={16} className="text-gold-500" />
-                                    <span className="font-semibold">hello@dressco.lk</span>
+                                    <span className="font-semibold">infodresscoware@gmail.com</span>
                                 </div>
                                 <div className="flex items-start gap-3 text-sm text-gray-500">
                                     <MapPin size={16} className="text-gold-500 shrink-0 mt-1" />
                                     <span className="font-semibold">
-                                        123 Designer Avenue,<br />
-                                        Colombo 00700,<br />
+
+                                        Colombo <br />
                                         Sri Lanka
                                     </span>
                                 </div>
