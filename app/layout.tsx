@@ -15,6 +15,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://dresscowear.com'),
   title: "DressCo | Sri Lanka's Best Premium Fabric Cloths",
   description: "Experience Sri Lanka's finest premium fabric cloths. Shop online for exclusive women's fashion, men's fashion, kids' fashion, t-shirts, and more. Quality you can feel.",
   keywords: ["dressco", "sri lanka", "premium fabric", "cloths", "fashion", "online store", "women fashion", "men fashion", "kids fashion", "t-shirts", "buy clothes online"],
@@ -22,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DressCo | Sri Lanka's Best Premium Fabric Cloths",
     description: "Discover premium quality fashion for men, women, and kids. Shop the best fabric cloths in Sri Lanka online.",
-    url: "https://www.dresscowear.com",
+    url: "https://dresscowear.com",
     siteName: "DressCo",
     images: [
       {

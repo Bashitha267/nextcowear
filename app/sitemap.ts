@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { products } from '@/lib/data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://www.dresscowear.com'
+    const baseUrl = 'https://dresscowear.com'
 
     // Static routes
     const routes = [
