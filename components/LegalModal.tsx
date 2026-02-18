@@ -96,9 +96,9 @@ const LegalModal = ({ isOpen, onClose, type }: LegalModalProps) => {
             case "Shipping Policy":
             case "Terms & Privacy":
                 return (
-                    <div className="space-y-12 animate-in fade-in slide-in-from-bottom duration-500">
-                        <div className="text-center mb-10">
-                            <h2 className="text-3xl font-serif text-gray-900 mb-4 uppercase tracking-widest">{type}</h2>
+                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom duration-500">
+                        <div className="text-center mb-4">
+                            <h2 className="text-3xl font-serif text-gray-900 mb-2 uppercase tracking-widest">{type}</h2>
                             <p className="text-gray-500 font-light italic">
                                 {type === "Refund Policy" && "Hassle-free 30-day returns and exchanges."}
                                 {type === "Shipping Policy" && "Island-wide fulfillment across Sri Lanka."}
@@ -108,7 +108,7 @@ const LegalModal = ({ isOpen, onClose, type }: LegalModalProps) => {
 
                         <div className="prose prose-sm prose-gray max-w-none font-light">
                             {content ? (
-                                <div dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
+                                <div dangerouslySetInnerHTML={{ __html: content }} />
                             ) : (
                                 <p className="text-center text-gray-400 italic">Content pending update...</p>
                             )}
