@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { SettingsService } from '@/lib/settings';
-import { Uploadcloud, Save, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { UploadCloud, Save, Trash2, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
 
@@ -135,7 +135,7 @@ export default function SizeChartsPage() {
                             </>
                         ) : (
                             <div className="text-center p-6 space-y-2">
-                                <Uploadcloud className="w-12 h-12 text-gray-300 mx-auto group-hover:text-gold-400 transition-colors" />
+                                <UploadCloud className="w-12 h-12 text-gray-300 mx-auto group-hover:text-gold-400 transition-colors" />
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
                                     {uploading ? 'Uploading...' : 'Click to Upload'}
                                 </p>

@@ -102,7 +102,7 @@ export default function LegalPage() {
                         />
                     )}
 
-                    <div className="flex items-center gap-2 text-xs text-gray-400 italic bg-blue-50 p-3 rounded-lg border border-blue-100 text-blue-600">
+                    <div className="flex items-center gap-2 text-xs italic bg-blue-50 p-3 rounded-lg border border-blue-100 text-blue-600">
                         <CheckCircle size={14} />
                         Content supports basic HTML formatting for lists, bold text, etc.
                     </div>
