@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import { X, ChevronRight, Info } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, ChevronRight, Info, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { SettingsService } from "@/lib/settings";
 
 interface LegalModalProps {
     isOpen: boolean;
@@ -11,9 +12,48 @@ interface LegalModalProps {
 }
 
 const LegalModal = ({ isOpen, onClose, type }: LegalModalProps) => {
+    const [content, setContent] = useState<string>("");
+    const [sizeChartUrl, setSizeChartUrl] = useState<string>("");
+    const [sizeChartDesc, setSizeChartDesc] = useState<string>("");
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchContent();
+        }
+    }, [isOpen, type]);
+
+    const fetchContent = async () => {
+        setLoading(true);
+        try {
+            if (type === "Size Chart") {
+                const data = await SettingsService.getSizeChart();
+                setSizeChartUrl(data.url);
+                setSizeChartDesc(data.description);
+            } else {
+                const docType = type === "Refund Policy" ? "refund" :
+                    type === "Shipping Policy" ? "shipping" : "terms";
+                const text = await SettingsService.getLegalDocument(docType);
+                setContent(text);
+            }
+        } catch (error) {
+            console.error("Error loading content", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (!isOpen) return null;
 
     const renderContent = () => {
+        if (loading) {
+            return (
+                <div className="flex items-center justify-center py-20">
+                    <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
+                </div>
+            );
+        }
+
         switch (type) {
             case "Size Chart":
                 return (
@@ -22,51 +62,61 @@ const LegalModal = ({ isOpen, onClose, type }: LegalModalProps) => {
                             <h2 className="text-3xl font-serif text-gray-900 mb-4 uppercase tracking-widest">Perfect Fit Guide</h2>
                             <p className="text-gray-500 font-light italic">Detailed measurements for men, women, and kids.</p>
                         </div>
-                        <div className="relative aspect-3/4 md:aspect-video w-full rounded-sm overflow-hidden border border-gold-100 shadow-2xl">
-                            <Image
-                                src="https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770878852/Size-Chart-Web_e2p7x6.jpg"
-                                alt="Size Chart"
-                                fill
-                                className="object-contain bg-white"
-                            />
-                        </div>
-                        <div className="bg-gold-50 p-6 rounded-sm border-l-4 border-gold-500 flex gap-4">
-                            <Info className="text-gold-600 shrink-0" size={20} />
-                            <p className="text-xs text-gray-600 leading-relaxed font-medium uppercase tracking-wide">
-                                <span className="text-gold-700 font-bold">Pro Tip:</span> Our garments are tailored for the tropical heart. Use a soft measuring tape for the most accurate results.
-                            </p>
-                        </div>
+
+                        {sizeChartUrl ? (
+                            <div className="relative aspect-3/4 md:aspect-video w-full rounded-sm overflow-hidden border border-gold-100 shadow-2xl">
+                                <Image
+                                    src={sizeChartUrl}
+                                    alt="Size Chart"
+                                    fill
+                                    className="object-contain bg-white"
+                                />
+                            </div>
+                        ) : (
+                            <div className="p-10 text-center bg-gray-50 border border-dashed border-gray-200 rounded-lg">
+                                <p className="text-gray-400 text-sm">Size chart image not available yet.</p>
+                            </div>
+                        )}
+
+                        {(sizeChartDesc || !sizeChartUrl) && (
+                            <div className="bg-gold-50 p-6 rounded-sm border-l-4 border-gold-500 flex gap-4">
+                                <Info className="text-gold-600 shrink-0" size={20} />
+                                <div className="text-xs text-gray-600 leading-relaxed font-medium uppercase tracking-wide whitespace-pre-line">
+                                    {sizeChartDesc || (
+                                        <span>
+                                            <span className="text-gold-700 font-bold">Pro Tip:</span> Our garments are tailored for the tropical heart. Use a soft measuring tape for the most accurate results.
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 );
             case "Refund Policy":
+            case "Shipping Policy":
+            case "Terms & Privacy":
                 return (
                     <div className="space-y-12 animate-in fade-in slide-in-from-bottom duration-500">
                         <div className="text-center mb-10">
-                            <h2 className="text-3xl font-serif text-gray-900 mb-4 uppercase tracking-widest">Refund Policy</h2>
-                            <p className="text-gray-500 font-light italic">Hassle-free 30-day returns and exchanges.</p>
-                        </div>
-                        <section className="space-y-6">
-                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest border-b border-gold-100 pb-2">Returns Eligibility</h3>
-                            <ul className="space-y-4 text-sm text-gray-600">
-                                {[
-                                    "Items must be unworn and unwashed with original tags.",
-                                    "Returns must be initiated within 30 days of delivery.",
-                                    "Original packaging must be included.",
-                                    "Proof of purchase is required for all returns."
-                                ].map((item, i) => (
-                                    <li key={i} className="flex gap-3 items-start">
-                                        <ChevronRight size={16} className="text-gold-500 shrink-0" />
-                                        <span>{item}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                        <section className="space-y-6">
-                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest border-b border-gold-100 pb-2">The Refund Process</h3>
-                            <p className="text-sm text-gray-600 leading-relaxed font-light">
-                                Once received and inspected, refunds are processed back to your original payment method within 7-10 working days. We ensure complete transparency at every step.
+                            <h2 className="text-3xl font-serif text-gray-900 mb-4 uppercase tracking-widest">{type}</h2>
+                            <p className="text-gray-500 font-light italic">
+                                {type === "Refund Policy" && "Hassle-free 30-day returns and exchanges."}
+                                {type === "Shipping Policy" && "Island-wide fulfillment across Sri Lanka."}
+                                {type === "Terms & Privacy" && "Your data security and site usage guidelines."}
                             </p>
-                            <div className="p-6 bg-gold-950 text-white rounded-sm">
+                        </div>
+
+                        <div className="prose prose-sm prose-gray max-w-none font-light">
+                            {content ? (
+                                <div dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
+                            ) : (
+                                <p className="text-center text-gray-400 italic">Content pending update...</p>
+                            )}
+                        </div>
+
+                        {/* Contact snippet mostly relevant for Refund/Shipping */}
+                        {(type === "Refund Policy" || type === "Shipping Policy") && (
+                            <div className="p-6 bg-gold-950 text-white rounded-sm mt-8">
                                 <p className="text-xs font-bold tracking-widest uppercase mb-2">Need Assistance?</p>
                                 <p className="text-[11px] text-gold-200/80 mb-4 italic">Reach out to our dedicated concierge team.</p>
                                 <div className="flex flex-col gap-2">
@@ -74,63 +124,7 @@ const LegalModal = ({ isOpen, onClose, type }: LegalModalProps) => {
                                     <a href="tel:0771260404" className="text-xs font-bold text-gold-400 underline underline-offset-4 hover:text-white transition-colors">077 126 0404</a>
                                 </div>
                             </div>
-                        </section>
-                    </div>
-                );
-            case "Shipping Policy":
-                return (
-                    <div className="space-y-12 animate-in fade-in slide-in-from-bottom duration-500">
-                        <div className="text-center mb-10">
-                            <h2 className="text-3xl font-serif text-gray-900 mb-4 uppercase tracking-widest">Shipping Policy</h2>
-                            <p className="text-gray-500 font-light italic">Island-wide fulfillment across Sri Lanka.</p>
-                        </div>
-                        <div className="grid grid-cols-1 gap-6">
-                            <div className="p-8 bg-gold-50 border border-gold-100 rounded-sm">
-                                <h4 className="text-xs font-bold text-gold-700 uppercase tracking-widest mb-4">Domestic Fulfillment (Sri Lanka)</h4>
-                                <div className="space-y-4 text-sm text-gray-900 font-bold">
-                                    <div className="flex justify-between border-b border-gray-200 pb-2">
-                                        <span>Colombo & Suburbs</span>
-                                        <span>1-2 Working Days</span>
-                                    </div>
-                                    <div className="flex justify-between border-b border-gray-200 pb-2">
-                                        <span>Island-wide (Outstation)</span>
-                                        <span>3-5 Working Days</span>
-                                    </div>
-                                </div>
-                                <p className="text-[10px] text-gray-400 mt-4 leading-relaxed italic">
-                                    *International shipping is currently unavailable as we focus on providing the best experience for our home island.
-                                </p>
-                            </div>
-                        </div>
-                        <section className="space-y-6">
-                            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest border-b border-gold-100 pb-2">Dispatch Details</h3>
-                            <p className="text-sm text-gray-600 leading-relaxed font-light">
-                                Orders placed before 1:00 PM (SLT) are dispatched on the same business day. You will receive a tracking link via SMS once your package leaves our studio.
-                            </p>
-                        </section>
-                    </div>
-                );
-            case "Terms & Privacy":
-                return (
-                    <div className="space-y-12 animate-in fade-in slide-in-from-bottom duration-500">
-                        <div className="text-center mb-10">
-                            <h2 className="text-3xl font-serif text-gray-900 mb-4 uppercase tracking-widest">Privacy & Terms</h2>
-                            <p className="text-gray-500 font-light italic">Your data security and site usage guidelines.</p>
-                        </div>
-                        <div className="space-y-10">
-                            <section>
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-4">Privacy Commitment</h3>
-                                <p className="text-sm text-gray-600 leading-relaxed font-light">
-                                    Your privacy is paramount. We only collect details necessary to process your orders and enhance your site experience. We never sell your data to third parties.
-                                </p>
-                            </section>
-                            <section>
-                                <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-4">Terms of Service</h3>
-                                <p className="text-sm text-gray-600 leading-relaxed font-light">
-                                    By using dresscowear.com, you agree to our usage guidelines. All content, images, and designs are the property of DressCo (PVT) Ltd and may not be used without explicit permission.
-                                </p>
-                            </section>
-                        </div>
+                        )}
                     </div>
                 );
             default:

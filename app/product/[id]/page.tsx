@@ -28,6 +28,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "react-hot-toast";
 import { X, Camera, Loader2 } from "lucide-react";
 
+import LegalModal from "@/components/LegalModal";
+// ... imports
+
 const ProductDetailsPage = () => {
     const params = useParams();
     const productId = params.id as string;
@@ -45,6 +48,9 @@ const ProductDetailsPage = () => {
     const [reviews, setReviews] = useState<ProductReview[]>([]);
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+    // New state for Size Chart
+    const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
 
     // Review Form State
     const [reviewForm, setReviewForm] = useState({
@@ -280,7 +286,9 @@ const ProductDetailsPage = () => {
                             <div className="space-y-6 pt-4 border-t border-gray-100">
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-xs font-bold tracking-[0.3em] uppercase text-gray-900">Select Size:</h3>
-                                    <button className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-gold-500 transition-colors uppercase tracking-[0.2em] underline underline-offset-4">
+                                    <button
+                                        onClick={() => setIsSizeChartOpen(true)}
+                                        className="flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-gold-500 transition-colors uppercase tracking-[0.2em] underline underline-offset-4">
                                         <Ruler size={16} /> Size Chart
                                     </button>
                                 </div>
@@ -731,6 +739,12 @@ const ProductDetailsPage = () => {
                 <div className="absolute top-34 md:top-48 left-0 right-0 pointer-events-none">
                     <TestimonialsDrawer />
                 </div>
+
+                <LegalModal
+                    isOpen={isSizeChartOpen}
+                    onClose={() => setIsSizeChartOpen(false)}
+                    type="Size Chart"
+                />
             </main>
         </div>
     );
