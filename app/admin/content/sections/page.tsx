@@ -101,17 +101,20 @@ function SectionAssetsContent() {
     const handleSave = async (assetData: Partial<SiteAsset>, sectionKey: string, id?: string) => {
         setSubmitting(true);
         try {
+            // Clean the data: remove internal fields that shouldn't be in the update/insert payload
+            const { id: _id, created_at, ...updateData } = assetData as any;
+
             if (id) {
                 const { error } = await supabase
                     .from('site_assets')
-                    .update(assetData)
+                    .update(updateData)
                     .eq('id', id);
                 if (error) throw error;
                 toast.success('Updated!');
             } else {
                 const { error } = await supabase
                     .from('site_assets')
-                    .insert([{ ...assetData, section_key: sectionKey }]);
+                    .insert([{ ...updateData, section_key: sectionKey }]);
                 if (error) throw error;
                 toast.success('Saved!');
             }

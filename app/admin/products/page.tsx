@@ -281,9 +281,10 @@ export default function ProductsPage() {
         e.preventDefault();
         setSubmitting(true);
         try {
-            // Convert empty strings to null for UUID columns
+            // Convert empty strings to null for UUID columns and strip internal fields
+            const { id: _id, created_at, ...updateData } = formData as any;
             const cleanedData = {
-                ...formData,
+                ...updateData,
                 main_category_id: formData.main_category_id || null,
                 sub_category_id: formData.sub_category_id || null,
             };
