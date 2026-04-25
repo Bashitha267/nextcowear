@@ -12,7 +12,7 @@ const PAGE_GROUPS = [
         id: 'home',
         name: 'Home Page',
         sections: [
-            { id: 'hero_backup', name: "Hero Backup (Static fallback)" },
+            { id: 'hero', name: "Main Hero Section" },
             { id: 'women_collection', name: "Women's Collection Card" },
             { id: 'men_collection', name: "Men's Collection Card" },
             { id: 'kids_collection', name: "Kids' Collection Card" }
@@ -175,6 +175,17 @@ function SectionAssetsContent() {
                                         />
                                     ))}
 
+                                    {/* Show one empty slot only if the section is completely empty */}
+                                    {sectionAssets.length === 0 && (
+                                        <AssetRowEditor
+                                            sectionKey={sectionConfig.id}
+                                            onSave={(data) => handleSave(data, sectionConfig.id)}
+                                            isUploading={submitting}
+                                            uploadFn={uploadToCloudinary}
+                                            isAddMore
+                                        />
+                                    )}
+
                                     {/* Fill with empty slots up to 3 for specific sections */}
                                     {(sectionConfig.id.includes('fabrics') || sectionConfig.id.includes('craft')) && sectionAssets.length < 3 &&
                                         Array.from({ length: 3 - sectionAssets.length }).map((_, idx) => (
@@ -189,16 +200,6 @@ function SectionAssetsContent() {
                                         ))
                                     }
 
-                                    {/* Standard 'Add More' for other multiple-item sections */}
-                                    {sectionConfig.id.includes('collection') && sectionAssets.length < 6 && (
-                                        <AssetRowEditor
-                                            sectionKey={sectionConfig.id}
-                                            onSave={(data) => handleSave(data, sectionConfig.id)}
-                                            isUploading={submitting}
-                                            uploadFn={uploadToCloudinary}
-                                            isAddMore
-                                        />
-                                    )}
                                 </div>
                             </div>
                         );

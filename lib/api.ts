@@ -650,7 +650,12 @@ export async function getSiteAssets(section_key?: string) {
         console.error('Error fetching site assets:', error);
         return [];
     }
-    return data as SiteAsset[];
+    // Filter out assets with invalid URLs (like placeholders) to prevent Next.js Image crash
+    return (data || []).filter((a: any) => 
+        a.image_url && 
+        (a.image_url.startsWith('http') || a.image_url.startsWith('/')) &&
+        !a.image_url.includes('IMAGE_LINK_HERE')
+    ) as SiteAsset[];
 }
 
 // Helper to map DB response to UI Product interface
@@ -663,8 +668,8 @@ function mapSupabaseProductsToUI(data: any[]): Product[] {
         subCategory: item.sub_category?.name || '',
         price: Number(item.sale_price) || Number(item.regular_price),
         originalPrice: item.sale_price ? Number(item.regular_price) : undefined,
-        image: item.main_image || '',
-        additionalImages: item.additional_images || [],
+        image: (item.main_image && (item.main_image.startsWith('http') || item.main_image.startsWith('/')) && !item.main_image.includes('IMAGE_LINK_HERE')) ? item.main_image : '',
+        additionalImages: (item.additional_images || []).filter((img: string) => img && (img.startsWith('http') || img.startsWith('/')) && !img.includes('IMAGE_LINK_HERE')),
         isNew: item.is_new_arrival,
         isBestSeller: item.is_best_seller,
         rating: Number(item.rating),
