@@ -6,7 +6,7 @@ import BestSellersSection from "@/components/BestSellersSection";
 import NewArrivalsSection from "@/components/NewArrivalsSection";
 import FAQSection from "@/components/FAQSection";
 import ReviewsCarousel from "@/components/ReviewsCarousel";
-import { getBestSellers, getFeaturedReviews, getSiteReviews, getNewArrivals, getFAQs } from "@/lib/api";
+import { getBestSellers, getFeaturedReviews, getSiteReviews, getNewArrivals, getFAQs, getSiteAssets, SiteAsset } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
 
 export const dynamic = 'force-dynamic';
@@ -24,6 +24,42 @@ export default async function Home() {
     .select('*', { count: 'exact', head: true })
     .eq('is_approved', true);
 
+  // Fetch site assets for dynamic images
+  const siteAssets = await getSiteAssets();
+  const getAsset = (key: string) => siteAssets.find(a => a.section_key === key && a.is_active);
+
+  // Default Assets (Fallbacks)
+  const heroAsset = getAsset('hero') || getAsset('hero_backup') || {
+    image_url: "https://res.cloudinary.com/dnfbik3if/image/upload/v1770442924/tshirt_vp2ngs.jpg",
+    title: "Island Elegance,",
+    subtitle: "Everyday Style",
+    description: "Discover the best cloths, meticulously tailed for comfort and sophistication. Experience the authentic touch of luxury."
+  } as SiteAsset;
+
+  const womenAsset = getAsset('women_collection') || {
+    image_url: "https://res.cloudinary.com/dnfbik3if/image/upload/v1770443016/pro_stuf7a.jpg",
+    title: "Sustainably Made In <br /> Sri Lanka",
+    subtitle: "100% Premium Sri Lankan-Crafted and imported clothing for Women"
+  } as SiteAsset;
+
+  const menAsset = getAsset('men_collection') || {
+    image_url: "https://res.cloudinary.com/dnfbik3if/image/upload/v1770443139/Black_Modern_Fashion_Magazine_Cover_dowh0p.jpg",
+    title: "Expertly Crafted In <br /> Sri Lanka",
+    subtitle: "100% Premium Sri Lankan-Crafted and imported clothing for Men"
+  } as SiteAsset;
+
+  const kidsAsset = getAsset('kids_collection') || {
+    image_url: "https://res.cloudinary.com/dxoa3ashm/image/upload/v1770459423/Peach_Minimalist_Kids_Fashion_Instagram_Post_nt29gy.jpg",
+    title: "Playfully Made In <br /> Sri Lanka",
+    subtitle: "100% Premium Sri Lankan-Crafted and imported clothing for Kids"
+  } as SiteAsset;
+
+  const whyUsAsset = getAsset('why_us') || {
+    image_url: "https://res.cloudinary.com/dnfbik3if/image/upload/v1770443694/Brown_Minimalist_Fashion_Facebook_Cover_edhreh.jpg",
+    title: "Why Premium Fabric?",
+    description: "DressCo was founded to redefine the fashion industry in Sri Lanka by creating ethically made luxury essentials. We are proud to present our range of Premium Fabrics, meticulously crafted for the conscious individual who values quality above all else."
+  } as SiteAsset;
+
   return (
     <div className="relative min-h-screen bg-[#FDFBF7] pt-20">
       {/* Hero Section */}
@@ -31,14 +67,36 @@ export default async function Home() {
         <div className="w-full px-4 md:px-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center z-10">
           <div className="order-2 lg:order-1">
             <span className="inline-block text-gold-600 font-medium tracking-[0.3em] uppercase mb-4 animate-in fade-in slide-in-from-bottom duration-700">
-              Sri Lankan Heritage 2026
+              {heroAsset.subtitle || "Sri Lankan Heritage 2026"}
             </span>
             <h1 className="text-5xl md:text-7xl font-serif text-gray-900 leading-tight mb-6 animate-in fade-in slide-in-from-bottom duration-1000">
-              Island Elegance, <br />
-              <span className="bg-linear-to-r from-gold-400 via-gold-600 to-gold-400 bg-clip-text text-transparent">Everyday</span> Style
+              {heroAsset.title ? (
+                heroAsset.title.includes(',') ? (
+                  <>
+                    {heroAsset.title.split(',')[0]}, <br />
+                    <span className="bg-linear-to-r from-gold-400 via-gold-600 to-gold-400 bg-clip-text text-transparent">
+                      {heroAsset.title.split(',')[1]}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {heroAsset.title.split(' ')[0]} <br />
+                    <span className="bg-linear-to-r from-gold-400 via-gold-600 to-gold-400 bg-clip-text text-transparent">
+                      {heroAsset.title.split(' ').slice(1).join(' ')}
+                    </span>
+                  </>
+                )
+              ) : (
+                <>
+                  Island Elegance, <br />
+                  <span className="bg-linear-to-r from-gold-400 via-gold-600 to-gold-400 bg-clip-text text-transparent">
+                    Everyday
+                  </span> Style
+                </>
+              )}
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-lg animate-in fade-in slide-in-from-bottom duration-1000 delay-200">
-              Discover the best cloths, meticulously tailed for comfort and sophistication. Experience the authentic touch of luxury.
+              {heroAsset.description || "Discover the best cloths, meticulously tailed for comfort and sophistication. Experience the authentic touch of luxury."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in slide-in-from-bottom duration-1000 delay-300">
               <Link
@@ -59,10 +117,10 @@ export default async function Home() {
           <div className="relative order-1 lg:order-2 animate-in fade-in zoom-in duration-1000">
             <div className="relative w-full h-[80vh] rounded-sm overflow-hidden border-12 border-gold-50">
               <Image
-                src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770442924/tshirt_vp2ngs.jpg"
-                alt="Premium Cloth"
+                src={heroAsset.image_url}
+                alt="Main Collection"
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-700 hover:scale-105"
                 priority
               />
             </div>
@@ -84,13 +142,13 @@ export default async function Home() {
         <TestimonialsDrawer />
       </section>
 
-      {/* Gender Selection Section */}
-      <section className="py-12 bg-gold-50/20">
-        <div className="w-full px-4 md:px-10 grid grid-cols-1 lg:grid-cols-3 gap-3 leading-none">
+      {/* Categories Section */}
+      <section className="bg-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {/* Women's Card */}
           <div className="relative aspect-[4/5] md:aspect-auto md:h-[80vh] overflow-hidden group border-2 border-gold-100/50 hover:border-gold-300 transition-colors duration-500">
             <Image
-              src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443016/pro_stuf7a.jpg"
+              src={womenAsset.image_url}
               alt="Women's Collection"
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-110 brightness-50"
@@ -98,10 +156,24 @@ export default async function Home() {
             <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-500"></div>
             <div className="absolute bottom-12 left-8 md:left-12 right-8 text-white z-10">
               <span className="block text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase mb-4 text-gold-200">
-                100% Premium Sri Lankan-Crafted and imported clothing for Women
+                {womenAsset.subtitle || "Premium Garments"}
               </span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider">
-                Sustainably Made In <br /> <span className="text-gold-300">Sri Lanka</span>
+                {womenAsset.title ? (
+                  womenAsset.title.includes('<br />') ? (
+                    <>
+                      {womenAsset.title.split('<br />')[0]} <br />
+                      <span className="text-gold-400">{womenAsset.title.split('<br />')[1]}</span>
+                    </>
+                  ) : (
+                    <>
+                      {womenAsset.title.split(' ')[0]} <br />
+                      <span className="text-gold-400">{womenAsset.title.split(' ').slice(1).join(' ')}</span>
+                    </>
+                  )
+                ) : (
+                  <>Sustainably Made In <br /> <span className="text-gold-400">Sri Lanka</span></>
+                )}
               </h2>
               <Link
                 href="/collections?category=Women"
@@ -110,27 +182,37 @@ export default async function Home() {
                 Shop Women
               </Link>
             </div>
-            {/* Gold Corner Design */}
-            <div className="absolute top-0 right-0 w-32 h-32 opacity-20 pointer-events-none overflow-hidden">
-              <div className="absolute top-0 right-0 w-[200%] h-[200%] border-t-2 border-r-2 border-gold-500 rotate-45 transform translate-x-1/2 -translate-y-1/2"></div>
-            </div>
           </div>
 
           {/* Men's Card */}
           <div className="relative aspect-[4/5] md:aspect-auto md:h-[80vh] overflow-hidden group border-2 border-gold-100/50 hover:border-gold-300 transition-colors duration-500">
             <Image
-              src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443139/Black_Modern_Fashion_Magazine_Cover_dowh0p.jpg"
+              src={menAsset.image_url}
               alt="Men's Collection"
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              className="object-cover transition-transform duration-700 group-hover:scale-110 brightness-50"
             />
             <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-500"></div>
             <div className="absolute bottom-12 left-8 md:left-12 right-8 text-white z-10">
               <span className="block text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase mb-4 text-gold-200">
-                100% Premium Sri Lankan-Crafted and imported clothing for Men
+                {menAsset.subtitle || "Master Tailoring"}
               </span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider">
-                Expertly Crafted In <br /> <span className="text-gold-400">Sri Lanka</span>
+                {menAsset.title ? (
+                  menAsset.title.includes('<br />') ? (
+                    <>
+                      {menAsset.title.split('<br />')[0]} <br />
+                      <span className="text-gold-400">{menAsset.title.split('<br />')[1]}</span>
+                    </>
+                  ) : (
+                    <>
+                      {menAsset.title.split(' ')[0]} <br />
+                      <span className="text-gold-400">{menAsset.title.split(' ').slice(1).join(' ')}</span>
+                    </>
+                  )
+                ) : (
+                  <>Expertly Crafted In <br /> <span className="text-gold-400">Sri Lanka</span></>
+                )}
               </h2>
               <Link
                 href="/collections?category=Men"
@@ -139,16 +221,12 @@ export default async function Home() {
                 Shop Men
               </Link>
             </div>
-            {/* Gold Corner Design */}
-            <div className="absolute top-0 left-0 w-32 h-32 opacity-20 pointer-events-none overflow-hidden">
-              <div className="absolute top-0 left-0 w-[200%] h-[200%] border-t-2 border-l-2 border-gold-500 -rotate-45 transform -translate-x-1/2 -translate-y-1/2"></div>
-            </div>
           </div>
 
           {/* Kids' Card */}
           <div className="relative aspect-[4/5] md:aspect-auto md:h-[80vh] overflow-hidden group border-2 border-gold-100/50 hover:border-gold-300 transition-colors duration-500">
             <Image
-              src="https://res.cloudinary.com/dxoa3ashm/image/upload/v1770459423/Peach_Minimalist_Kids_Fashion_Instagram_Post_nt29gy.jpg"
+              src={kidsAsset.image_url}
               alt="Kids' Collection"
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-110 brightness-50"
@@ -156,10 +234,24 @@ export default async function Home() {
             <div className="absolute inset-0 bg-black/5 group-hover:bg-black/15 transition-colors duration-500"></div>
             <div className="absolute bottom-12 left-8 md:left-12 right-8 text-white z-10">
               <span className="block text-[10px] md:text-xs font-semibold tracking-[0.3em] uppercase mb-4 text-gold-200">
-                100% Premium Sri Lankan-Crafted and imported clothing for Kids
+                {kidsAsset.subtitle || "Pure & Playful"}
               </span>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif mb-8 leading-tight uppercase font-bold tracking-wider">
-                Playfully Made In <br /> <span className="text-gold-400">Sri Lanka</span>
+                {kidsAsset.title ? (
+                  kidsAsset.title.includes('<br />') ? (
+                    <>
+                      {kidsAsset.title.split('<br />')[0]} <br />
+                      <span className="text-gold-400">{kidsAsset.title.split('<br />')[1]}</span>
+                    </>
+                  ) : (
+                    <>
+                      {kidsAsset.title.split(' ')[0]} <br />
+                      <span className="text-gold-400">{kidsAsset.title.split(' ').slice(1).join(' ')}</span>
+                    </>
+                  )
+                ) : (
+                  <>Playfully Made In <br /> <span className="text-gold-400">Sri Lanka</span></>
+                )}
               </h2>
               <Link
                 href="/collections?category=Kids"
@@ -218,19 +310,17 @@ export default async function Home() {
       {/* Why Premium Fabric Section */}
       <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
         <Image
-          src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443694/Brown_Minimalist_Fashion_Facebook_Cover_edhreh.jpg"
-          alt="Premium Fabric Background"
+          src={whyUsAsset.image_url}
+          alt={whyUsAsset.title || "Premium Fabric Background"}
           fill
           className="object-cover opacity-90 brightness-50"
         />
         <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
           <h2 className="text-xs md:text-sm font-bold tracking-[0.4em] uppercase mb-8">
-            Why Premium Fabric?
+            {whyUsAsset.title || "Why Premium Fabric?"}
           </h2>
           <p className="text-lg md:text-2xl font-light leading-relaxed mb-12 opacity-90">
-            DressCo was founded to redefine the fashion industry in Sri Lanka by creating ethically
-            made luxury essentials. We are proud to present our range of Premium Fabrics, meticulously crafted for the conscious individual who
-            values quality above all else.
+            {whyUsAsset.description || "DressCo was founded to redefine the fashion industry in Sri Lanka by creating ethically made luxury essentials. We are proud to present our range of Premium Fabrics, meticulously crafted for the conscious individual who values quality above all else."}
           </p>
           <Link
             href="/our-story"

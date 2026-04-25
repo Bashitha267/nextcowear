@@ -64,6 +64,20 @@ export interface FAQ {
     created_at?: string;
 }
 
+export interface SiteAsset {
+    id: string;
+    section_key: string;
+    image_url: string;
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    cta_text?: string;
+    cta_link?: string;
+    display_order: number;
+    is_active: boolean;
+    created_at?: string;
+}
+
 // Function to fetch all categories and their subcategories
 export async function getCategories() {
     const { data: mainCategories, error: mainError } = await supabase
@@ -616,6 +630,27 @@ export async function deleteFAQ(id: string) {
         .eq('id', id);
 
     if (error) throw error;
+}
+
+// --- Site Asset Functions ---
+
+export async function getSiteAssets(section_key?: string) {
+    let query = supabase
+        .from('site_assets')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+    if (section_key) {
+        query = query.eq('section_key', section_key);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+        console.error('Error fetching site assets:', error);
+        return [];
+    }
+    return data as SiteAsset[];
 }
 
 // Helper to map DB response to UI Product interface

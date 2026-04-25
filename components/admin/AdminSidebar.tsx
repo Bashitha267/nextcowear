@@ -47,6 +47,9 @@ const navigation: NavItem[] = [
         icon: FileText,
         children: [
             { name: 'Hero Images', href: '/admin/content/hero', icon: ImageIcon },
+            { name: 'Home Sections', href: '/admin/content/sections?filter=home', icon: ImageIcon },
+            { name: 'Why Us Page', href: '/admin/content/sections?filter=why_us', icon: ImageIcon },
+            { name: 'Heritage Page', href: '/admin/content/sections?filter=heritage', icon: ImageIcon },
             { name: 'FAQs', href: '/admin/content/faqs', icon: HelpCircle },
             { name: 'Size Charts', href: '/admin/content/size-charts', icon: Ruler },
             { name: 'Legal', href: '/admin/content/legal', icon: FileCheck }

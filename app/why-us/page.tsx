@@ -1,34 +1,85 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Check, ShieldCheck, Zap, Heart, Globe, Award, Feather, Scissors, Leaf, Users, Quote } from "lucide-react";
+import { getSiteAssets, SiteAsset } from "@/lib/api";
 
 export const metadata = {
     title: "Why Us | DressCo - Premium Sri Lankan Fashion",
     description: "Discover why DressCo is Sri Lanka's leading choice for premium fabrics and master craftsmanship. Experience island elegance like never before.",
 };
 
-export default function WhyUs() {
+export default async function WhyUs() {
+    const assets = await getSiteAssets();
+    const getAssets = (key: string) => assets.filter(a => a.section_key === key && a.is_active);
+    const getAsset = (key: string) => assets.find(a => a.section_key === key && a.is_active);
+
+    const heroAsset = getAsset('why_us_hero') || {
+        image_url: "https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770878852/burgess-milner-OYYE4g-I5ZQ-unsplash_c09dbk.jpg",
+        title: "Why Choose DressCo",
+        subtitle: "The DressCo Promise",
+        description: "Bridging the gap between traditional Sri Lankan comfort and modern global aesthetics."
+    } as SiteAsset;
+
+    const philosophyAsset = getAsset('why_us_philosophy') || {
+        image_url: "https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770878980/mike-von-V4cl7_0N2mc-unsplash_fj0vqv.jpg",
+        title: "Designed for the Tropical Heart",
+        description: "We understand the Sri Lankan climate. Our fabrics are chosen not just for their beauty, but for their breathability and durability in the island's unique humidity and warmth."
+    } as SiteAsset;
+
+    const fabricAssets = getAssets('why_us_fabrics').length > 0 ? getAssets('why_us_fabrics') : [
+        {
+            title: "Island Cotton",
+            subtitle: "Bestseller",
+            description: "100% long-staple cotton that gets softer with every wash. Designed for 24/7 wear in island humidity.",
+            image_url: "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&q=80&w=600"
+        },
+        {
+            title: "Pure Linen",
+            subtitle: "Premium",
+            description: "Ethically sourced flax, woven into a breathable masterpiece. The undisputed king of tropical elegance.",
+            image_url: "https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770878852/marcus-loke-xXJ6utyoSw0-unsplash_ft50oz.jpg"
+        },
+        {
+            title: "Silk Spandex",
+            subtitle: "Luxury",
+            description: "A touch of stretch for the perfect silhouette, with the unparalleled sheen of pure silk. Modern luxury.",
+            image_url: "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80&w=600"
+        }
+    ] as SiteAsset[];
+
+    const craftsmanshipAsset = getAsset('why_us_craftsmanship') || {
+        image_url: "https://res.cloudinary.com/dnfbik3if/image/upload/v1770443139/Black_Modern_Fashion_Magazine_Cover_dowh0p.jpg",
+        title: "The Island Masterpiece",
+        subtitle: "Unrivaled Detail"
+    } as SiteAsset;
+
+    const quoteAsset = getAsset('why_us_quote_bg') || {
+        image_url: "https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770879368/alyssa-strohmann-TS--uNw-JqE-unsplash_nb5nez.jpg",
+        description: "DressCo is not just a brand; it's a testament to the sophistication of the modern Sri Lankan spirit."
+    } as SiteAsset;
     return (
         <div className="relative min-h-screen bg-white">
             {/* Hero Section */}
             <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
                 <Image
-                    src="https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770878852/burgess-milner-OYYE4g-I5ZQ-unsplash_c09dbk.jpg"
-                    alt="Premium Fabric Background"
+                    src={heroAsset.image_url}
+                    alt={heroAsset.title || "Premium Fabric Background"}
                     fill
                     className="object-cover brightness-[0.4] scale-105"
                     priority
                 />
                 <div className="relative z-10 text-center px-6 max-w-5xl">
                     <span className="inline-block text-gold-400 font-bold tracking-[0.5em] uppercase mb-6 animate-in fade-in slide-in-from-bottom duration-700">
-                        The DressCo Promise
+                        {heroAsset.subtitle || "The DressCo Promise"}
                     </span>
                     <h1 className="text-5xl md:text-8xl font-serif text-white leading-tight mb-8 animate-in fade-in slide-in-from-bottom duration-1000 delay-200">
-                        Why Choose <br />
-                        <span className="bg-linear-to-r from-gold-200 via-gold-400 to-gold-200 bg-clip-text text-transparent">DressCo</span>
+                        {heroAsset.title?.split(' ')[0]} <br />
+                        <span className="bg-linear-to-r from-gold-200 via-gold-400 to-gold-200 bg-clip-text text-transparent">
+                            {heroAsset.title?.split(' ').slice(1).join(' ')}
+                        </span>
                     </h1>
                     <p className="text-xl md:text-2xl text-gold-50/80 font-light max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom duration-1000 delay-400">
-                        Bridging the gap between traditional Sri Lankan comfort and modern global aesthetics.
+                        {heroAsset.description || "Bridging the gap between traditional Sri Lankan comfort and modern global aesthetics."}
                     </p>
                 </div>
 
@@ -44,7 +95,7 @@ export default function WhyUs() {
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                     <div className="relative aspect-4/5 rounded-sm overflow-hidden shadow-2xl border-8 border-gold-50 group">
                         <Image
-                            src="https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770878980/mike-von-V4cl7_0N2mc-unsplash_fj0vqv.jpg"
+                            src={philosophyAsset.image_url}
                             alt="Sri Lankan Craftsmanship"
                             fill
                             className="object-cover transition-transform duration-1000 group-hover:scale-110"
@@ -53,12 +104,14 @@ export default function WhyUs() {
                     </div>
 
                     <div className="space-y-8">
-                        <h2 className="text-sm font-bold tracking-[0.3em] text-gold-600 uppercase">Our Philosophy</h2>
+                        <h2 className="text-sm font-bold tracking-[0.3em] text-gold-600 uppercase">
+                            {philosophyAsset.subtitle || "Our Philosophy"}
+                        </h2>
                         <h3 className="text-4xl md:text-5xl font-serif text-gray-900 leading-tight">
-                            Designed for the <span className="text-gold-500 italic">Tropical Heart</span>
+                            {philosophyAsset.title || "Designed for the Tropical Heart"}
                         </h3>
                         <p className="text-lg text-gray-600 leading-relaxed font-light">
-                            We understand the Sri Lankan climate. Our fabrics are chosen not just for their beauty, but for their breathability and durability in the island's unique humidity and warmth.
+                            {philosophyAsset.description || "We understand the Sri Lankan climate. Our fabrics are chosen not just for their beauty, but for their breathability and durability in the island's unique humidity and warmth."}
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6">
@@ -100,45 +153,25 @@ export default function WhyUs() {
                 </div>
 
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
-                    {[
-                        {
-                            title: "Island Cotton",
-                            tag: "Bestseller",
-                            desc: "100% long-staple cotton that gets softer with every wash. Designed for 24/7 wear in island humidity.",
-                            img: "https://images.unsplash.com/photo-1598554747436-c9293d6a588f?auto=format&fit=crop&q=80&w=600",
-                            color: "from-amber-100/20"
-                        },
-                        {
-                            title: "Pure Linen",
-                            tag: "Premium",
-                            desc: "Ethically sourced flax, woven into a breathable masterpiece. The undisputed king of tropical elegance.",
-                            img: "https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770878852/marcus-loke-xXJ6utyoSw0-unsplash_ft50oz.jpg",
-                            color: "from-gold-100/20"
-                        },
-                        {
-                            title: "Silk Spandex",
-                            tag: "Luxury",
-                            desc: "A touch of stretch for the perfect silhouette, with the unparalleled sheen of pure silk. Modern luxury.",
-                            img: "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80&w=600",
-                            color: "from-yellow-100/20"
-                        }
-                    ].map((fabric, i) => (
-                        <div key={i} className={`group relative overflow-hidden rounded-xl bg-linear-to-b ${fabric.color} to-gold-950/40 p-1 border border-white/10 hover:border-gold-500/50 transition-all duration-700`}>
+                    {fabricAssets.map((fabric, i) => (
+                        <div key={i} className={`group relative overflow-hidden rounded-xl bg-linear-to-b from-amber-100/10 to-gold-950/40 p-1 border border-white/10 hover:border-gold-500/50 transition-all duration-700`}>
                             <div className="relative h-80 overflow-hidden rounded-t-[10px]">
                                 <Image
-                                    src={fabric.img}
-                                    alt={fabric.title}
+                                    src={fabric.image_url}
+                                    alt={fabric.title || "Fabric"}
                                     fill
                                     className="object-cover group-hover:scale-110 transition-all duration-1000 brightness-75 group-hover:brightness-100"
                                 />
-                                <div className="absolute top-4 right-4 bg-gold-600 text-white text-[10px] font-bold px-3 py-1 tracking-widest uppercase rounded-full">
-                                    {fabric.tag}
-                                </div>
+                                {fabric.subtitle && (
+                                    <div className="absolute top-4 right-4 bg-gold-600 text-white text-[10px] font-bold px-3 py-1 tracking-widest uppercase rounded-full">
+                                        {fabric.subtitle}
+                                    </div>
+                                )}
                             </div>
                             <div className="p-8">
                                 <h4 className="text-3xl font-serif text-white mb-4 group-hover:text-gold-400 transition-colors">{fabric.title}</h4>
                                 <p className="text-gold-50/70 font-light leading-relaxed text-base italic">
-                                    "{fabric.desc}"
+                                    "{fabric.description}"
                                 </p>
                                 <div className="mt-6 w-12 h-0.5 bg-gold-500 group-hover:w-full transition-all duration-500"></div>
                             </div>
@@ -155,8 +188,15 @@ export default function WhyUs() {
 
                 <div className="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row gap-24 items-center relative z-10">
                     <div className="flex-1 order-2 lg:order-1">
-                        <h2 className="text-sm font-bold tracking-[0.4em] text-gold-600 uppercase mb-6">Unrivaled Detail</h2>
-                        <h3 className="text-5xl md:text-7xl font-serif text-gray-900 mb-10 leading-[1.1]">The Island <br /><span className="bg-linear-to-r from-gold-600 to-amber-400 bg-clip-text text-transparent italic">Masterpiece</span></h3>
+                        <h2 className="text-sm font-bold tracking-[0.4em] text-gold-600 uppercase mb-6">
+                            {craftsmanshipAsset.subtitle || "Unrivaled Detail"}
+                        </h2>
+                        <h3 className="text-5xl md:text-7xl font-serif text-gray-900 mb-10 leading-[1.1]">
+                            {craftsmanshipAsset.title?.split(' ').slice(0, 2).join(' ')} <br />
+                            <span className="bg-linear-to-r from-gold-600 to-amber-400 bg-clip-text text-transparent italic">
+                                {craftsmanshipAsset.title?.split(' ').slice(2).join(' ') || "Masterpiece"}
+                            </span>
+                        </h3>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
                             {[
@@ -180,7 +220,7 @@ export default function WhyUs() {
 
                             <div className="relative h-full w-full rounded-full overflow-hidden border-8 border-white shadow-2xl z-10">
                                 <Image
-                                    src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443139/Black_Modern_Fashion_Magazine_Cover_dowh0p.jpg"
+                                    src={craftsmanshipAsset.image_url}
                                     alt="Expert Tailoring"
                                     fill
                                     className="object-cover group-hover:scale-110 transition-transform duration-1000"
@@ -206,7 +246,7 @@ export default function WhyUs() {
             <section className="relative h-[60vh] flex items-center justify-center text-center">
                 <div className="absolute inset-0 z-0">
                     <Image
-                        src="https://res.cloudinary.com/dlwrpzuwj/image/upload/v1770879368/alyssa-strohmann-TS--uNw-JqE-unsplash_nb5nez.jpg"
+                        src={quoteAsset.image_url}
                         alt="Fashion Mood"
                         fill
                         className="object-cover brightness-[0.3]"
@@ -215,7 +255,7 @@ export default function WhyUs() {
                 <div className="relative z-10 px-6 max-w-4xl">
                     <Quote size={60} className="text-gold-500 mx-auto mb-8 opacity-50" />
                     <p className="text-3xl md:text-5xl font-serif text-white leading-relaxed italic mb-10">
-                        "DressCo is not just a brand; it's a testament to the sophistication of the modern Sri Lankan spirit."
+                        "{quoteAsset.description || "DressCo is not just a brand; it's a testament to the sophistication of the modern Sri Lankan spirit."}"
                     </p>
                     <div className="w-20 h-1 bg-gold-500 mx-auto"></div>
                 </div>
