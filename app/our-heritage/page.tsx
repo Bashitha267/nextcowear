@@ -5,6 +5,8 @@ import { Metadata } from "next";
 import { HeritageForm } from "@/components/HeritageForm";
 import { getSiteAssets, SiteAsset } from "@/lib/api";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
     title: "Our Heritage | DressCo Sri Lanka",
     description: "Discover the story behind DressCo. From the heart of Sri Lankan looms to contemporary luxury essentials, learn about our journey, craftsmanship, and commitment to ethical fashion.",

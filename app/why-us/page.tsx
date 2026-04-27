@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Check, ShieldCheck, Zap, Heart, Globe, Award, Feather, Scissors, Leaf, Users, Quote } from "lucide-react";
 import { getSiteAssets, SiteAsset } from "@/lib/api";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: "Why Us | DressCo - Premium Sri Lankan Fashion",
     description: "Discover why DressCo is Sri Lanka's leading choice for premium fabrics and master craftsmanship. Experience island elegance like never before.",
