@@ -22,7 +22,16 @@ const PAGE_GROUPS = [
             { id: 'hero', name: "Main Hero Section" },
             { id: 'women_collection', name: "Women's Collection Card" },
             { id: 'men_collection', name: "Men's Collection Card" },
-            { id: 'kids_collection', name: "Kids' Collection Card" }
+            { id: 'kids_collection', name: "Kids' Collection Card" },
+            { id: 'why_us', name: "Why Premium Fabric Section" },
+        ]
+    },
+    {
+        id: 'collections',
+        name: 'Collections Page',
+        sections: [
+            { id: 'collections_hero', name: 'Collections: Hero (Desktop)' },
+            { id: 'collections_hero_mobile', name: 'Collections: Hero (Mobile)' },
         ]
     },
     {

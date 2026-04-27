@@ -20,8 +20,8 @@ import {
     Heart,
     ShoppingBag
 } from "lucide-react";
-import { Product } from "@/lib/data"; // Keep Product type if still used
-import { getProducts, getCategories, getFilterOptions } from '@/lib/api';
+import { Product } from "@/lib/data";
+import { getProducts, getCategories, getFilterOptions, getSiteAssets } from '@/lib/api';
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -41,6 +41,8 @@ const CollectionsContent = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [filterOptions, setFilterOptions] = useState<{ colors: { name: string, hex_value: string }[], sizes: string[] }>({ colors: [], sizes: [] });
     const [loading, setLoading] = useState(true);
+    const [heroDesktop, setHeroDesktop] = useState("https://res.cloudinary.com/dnfbik3if/image/upload/v1770473563/Brown_Aesthetic_Fashion_Sale_Billboard_Landscape_baomjp.png");
+    const [heroMobile, setHeroMobile] = useState("https://res.cloudinary.com/dnfbik3if/image/upload/v1770443930/Beige_White_and_Brown_Modern_Fashion_Facebook_Cover_on5b6y.jpg");
 
     // Filters State
     const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -98,6 +100,16 @@ const CollectionsContent = () => {
             }
         };
         fetchData();
+    }, []);
+
+    // Fetch hero assets
+    useEffect(() => {
+        getSiteAssets().then(assets => {
+            const desktop = assets.find(a => a.section_key === 'collections_hero' && a.is_active);
+            const mobile = assets.find(a => a.section_key === 'collections_hero_mobile' && a.is_active);
+            if (desktop) setHeroDesktop(desktop.image_url);
+            if (mobile) setHeroMobile(mobile.image_url);
+        });
     }, []);
 
     // Handle initial filters from URL
@@ -207,14 +219,14 @@ const CollectionsContent = () => {
             {/* Hero / Banner Area */}
             <section className="relative h-[45vh] lg:h-[50vh] mb-12 flex items-center justify-center overflow-hidden bg-gold-300 ">
                 <Image
-                    src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770473563/Brown_Aesthetic_Fashion_Sale_Billboard_Landscape_baomjp.png"
+                    src={heroDesktop}
                     alt="Collections Banner Desktop"
                     fill
                     className="hidden lg:block object-cover opacity-80 brightness-70"
                     priority
                 />
                 <Image
-                    src="https://res.cloudinary.com/dnfbik3if/image/upload/v1770443930/Beige_White_and_Brown_Modern_Fashion_Facebook_Cover_on5b6y.jpg"
+                    src={heroMobile}
                     alt="Collections Banner Mobile"
                     fill
                     className="lg:hidden object-cover opacity-80 brightness-70"
