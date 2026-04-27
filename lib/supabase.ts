@@ -13,16 +13,25 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // underlying fetch calls by default in the App Router.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     global: {
-        fetch: (url, options = {}) =>
-            fetch(url, {
-                ...options,
-                cache: 'no-store',
-                headers: {
-                    ...options.headers,
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0',
-                },
-            }),
+        fetch: (url, options = {}) => {
+            // Set cache to no-store for Next.js Data Cache bypass
+            options.cache = 'no-store';
+            
+            // Ensure headers exist
+            if (!options.headers) {
+                options.headers = {};
+            }
+
+            // Defensively add Cache-Control header to bypass CDN/Browser cache
+            if (options.headers instanceof Headers) {
+                options.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+            } else if (Array.isArray(options.headers)) {
+                (options.headers as string[][]).push(['Cache-Control', 'no-cache, no-store, must-revalidate']);
+            } else {
+                (options.headers as any)['Cache-Control'] = 'no-cache, no-store, must-revalidate';
+            }
+            
+            return fetch(url, options);
+        },
     },
 });
