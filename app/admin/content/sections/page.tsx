@@ -1,11 +1,18 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { Plus, Trash2, Loader2, Image as ImageIcon, X, Upload, Settings2, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Loader2, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
 import { SiteAsset } from '@/lib/api';
 import { useSearchParams, useRouter } from 'next/navigation';
+
+const VALID_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dnfbik3if';
+const isBrokenUrl = (url?: string) =>
+    !!url &&
+    url.includes('res.cloudinary.com') &&
+    !url.includes(VALID_CLOUD);
+
 
 const PAGE_GROUPS = [
     {
@@ -126,6 +133,21 @@ function SectionAssetsContent() {
         }
     };
 
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Delete this asset? You can re-upload a fresh image after.')) return;
+        setSubmitting(true);
+        try {
+            const { error } = await supabase.from('site_assets').delete().eq('id', id);
+            if (error) throw error;
+            toast.success('Deleted — you can now upload a fresh image.');
+            fetchAssets();
+        } catch (error: any) {
+            toast.error(error.message || 'Delete failed');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div className="max-w-7xl mx-auto space-y-6">
             <div className="bg-white px-8 py-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -170,6 +192,7 @@ function SectionAssetsContent() {
                                             asset={asset}
                                             sectionKey={sectionConfig.id}
                                             onSave={(data) => handleSave(data, sectionConfig.id, asset.id)}
+                                            onDelete={() => handleDelete(asset.id)}
                                             isUploading={submitting}
                                             uploadFn={uploadToCloudinary}
                                         />
@@ -214,12 +237,13 @@ interface AssetRowEditorProps {
     asset?: SiteAsset;
     sectionKey: string;
     onSave: (data: Partial<SiteAsset>) => void;
+    onDelete?: () => void;
     isUploading: boolean;
     uploadFn: (file: File) => Promise<string>;
     isAddMore?: boolean;
 }
 
-function AssetRowEditor({ asset, sectionKey, onSave, isUploading, uploadFn, isAddMore }: AssetRowEditorProps) {
+function AssetRowEditor({ asset, sectionKey, onSave, onDelete, isUploading, uploadFn, isAddMore }: AssetRowEditorProps) {
     const [localAsset, setLocalAsset] = useState<Partial<SiteAsset>>(asset || {
         title: '',
         subtitle: '',
@@ -230,16 +254,28 @@ function AssetRowEditor({ asset, sectionKey, onSave, isUploading, uploadFn, isAd
     });
     const [localUploading, setLocalUploading] = useState(false);
 
+    // Determine if the local preview URL is safe to show
+    const previewUrl = localAsset.image_url &&
+        !localAsset.image_url.includes('IMAGE_LINK_HERE') &&
+        !isBrokenUrl(localAsset.image_url)
+        ? localAsset.image_url
+        : null;
+
     const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
         setLocalUploading(true);
         try {
             const url = await uploadFn(file);
-            setLocalAsset(prev => ({ ...prev, image_url: url }));
-            toast.success('Image Uploaded');
+            const updatedAsset = { ...localAsset, image_url: url };
+            setLocalAsset(updatedAsset);
+            // Auto-save to Supabase if updating an existing record
+            if (asset?.id) {
+                onSave(updatedAsset);
+            }
+            toast.success(asset?.id ? 'Image Uploaded & Saved' : 'Image Uploaded');
         } catch (e) {
-            toast.error('Failed');
+            toast.error('Failed to upload image');
         } finally {
             setLocalUploading(false);
         }
@@ -247,19 +283,20 @@ function AssetRowEditor({ asset, sectionKey, onSave, isUploading, uploadFn, isAd
 
     return (
         <div className={`bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all hover:border-gold-200 group ${isAddMore ? 'opacity-60 grayscale hover:opacity-100 hover:grayscale-0' : ''}`}>
+
             <div className="flex flex-col md:flex-row gap-6">
                 <div className="md:w-1/3 shrink-0">
                     <div className="relative aspect-video md:aspect-[4/3] rounded-lg overflow-hidden bg-gray-50 border border-gray-100">
-                        {localAsset.image_url ? (
-                            <img src={localAsset.image_url} alt="Preview" className="w-full h-full object-cover" />
+                        {previewUrl ? (
+                            <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
                         ) : (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-200">
-                                <ImageIcon size={24} />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                <ImageIcon size={24} className="text-gray-200" />
                             </div>
                         )}
                         <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                             <span className="text-[10px] font-black text-white uppercase tracking-widest bg-gray-900/50 px-3 py-2 rounded-full backdrop-blur-sm shadow-xl border border-white/20 hover:scale-105 active:scale-95 transition-all">
-                                {localUploading ? 'Wait...' : 'Set Image'}
+                                {localUploading ? 'Uploading...' : 'Set Image'}
                             </span>
                             <input type="file" className="hidden" accept="image/*" onChange={handleFile} />
                         </label>
@@ -314,7 +351,7 @@ function AssetRowEditor({ asset, sectionKey, onSave, isUploading, uploadFn, isAd
                         </div>
                         <button
                             onClick={() => onSave(localAsset)}
-                            disabled={isUploading || localUploading || !localAsset.image_url}
+                            disabled={isUploading || localUploading || !previewUrl}
                             className="text-[10px] font-black uppercase tracking-widest bg-gray-900 text-white px-6 py-2 rounded-lg hover:bg-black transition-all hover:scale-105 active:scale-95 disabled:opacity-30 flex items-center gap-2"
                         >
                             {isUploading && <Loader2 size={12} className="animate-spin" />}

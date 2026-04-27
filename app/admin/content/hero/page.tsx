@@ -1,189 +1,123 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Loader2, Image as ImageIcon, X, Upload, Check, GripVertical, Settings2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Upload, Image as ImageIcon, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
 
-interface HeroImage {
-    id: string;
+const SECTION_KEY = 'hero';
+
+interface HeroAsset {
+    id?: string;
+    section_key: string;
     image_url: string;
-    alt_text?: string;
-    title?: string;
-    subtitle?: string;
-    cta_text?: string;
-    cta_link?: string;
-    display_order: number;
+    title: string;
+    subtitle: string;
+    description: string;
     is_active: boolean;
+    display_order: number;
 }
 
-export default function HeroImagesPage() {
-    const [images, setImages] = useState<HeroImage[]>([]);
+const DEFAULT_ASSET: HeroAsset = {
+    section_key: SECTION_KEY,
+    image_url: '',
+    title: 'Island Elegance, Everyday Style',
+    subtitle: 'Sri Lankan Heritage 2026',
+    description: 'Discover the best cloths, meticulously tailed for comfort and sophistication. Experience the authentic touch of luxury.',
+    is_active: true,
+    display_order: 0,
+};
+
+export default function HeroImagePage() {
+    const [asset, setAsset] = useState<HeroAsset>(DEFAULT_ASSET);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
-    const [showForm, setShowForm] = useState(false);
-    const [editingImage, setEditingImage] = useState<HeroImage | null>(null);
-
-    const [formData, setFormData] = useState({
-        image_url: '',
-        alt_text: '',
-        title: '',
-        subtitle: '',
-        cta_text: '',
-        cta_link: '',
-        display_order: 0,
-        is_active: true
-    });
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        fetchHeroImages();
+        fetchHeroAsset();
     }, []);
 
-    const fetchHeroImages = async () => {
+    const fetchHeroAsset = async () => {
         setLoading(true);
         try {
             const { data, error } = await supabase
-                .from('hero_images')
+                .from('site_assets')
                 .select('*')
-                .order('display_order', { ascending: true });
+                .eq('section_key', SECTION_KEY)
+                .order('display_order', { ascending: true })
+                .limit(1)
+                .single();
 
-            if (error) throw error;
-            setImages(data || []);
+            if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
+            if (data) setAsset(data as HeroAsset);
         } catch (error) {
-            console.error('Error fetching hero images:', error);
-            toast.error('Failed to load hero images');
+            console.error('Error fetching hero asset:', error);
         } finally {
             setLoading(false);
         }
     };
 
     const uploadToCloudinary = async (file: File): Promise<string> => {
-        const data = new FormData();
-        data.append('file', file);
-        data.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'ml_default');
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'ml_default');
 
-        try {
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-                { method: 'POST', body: data }
-            );
-
-            const resData = await response.json();
-            if (!response.ok) throw new Error(resData.error?.message || 'Upload failed');
-            return resData.secure_url;
-        } catch (error) {
-            console.error('Error uploading to Cloudinary:', error);
-            throw error;
-        }
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+            { method: 'POST', body: formData }
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || 'Upload failed');
+        return data.secure_url;
     };
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-
         setUploading(true);
         try {
-            const imageUrl = await uploadToCloudinary(file);
-            setFormData(prev => ({ ...prev, image_url: imageUrl, alt_text: file.name.split('.')[0] }));
-            toast.success('Image uploaded successfully!');
-        } catch (error) {
-            toast.error('Failed to upload image. Please try again.');
+            const url = await uploadToCloudinary(file);
+            setAsset(prev => ({ ...prev, image_url: url }));
+            toast.success('Image uploaded! Click Save to apply.');
+        } catch {
+            toast.error('Upload failed. Please try again.');
         } finally {
             setUploading(false);
         }
     };
 
-    const handleEdit = (image: HeroImage) => {
-        setEditingImage(image);
-        setFormData({
-            image_url: image.image_url,
-            alt_text: image.alt_text || '',
-            title: image.title || '',
-            subtitle: image.subtitle || '',
-            cta_text: image.cta_text || '',
-            cta_link: image.cta_link || '',
-            display_order: image.display_order,
-            is_active: image.is_active
-        });
-        setShowForm(true);
-    };
-
-    const toggleActive = async (image: HeroImage) => {
-        try {
-            const { error } = await supabase
-                .from('hero_images')
-                .update({ is_active: !image.is_active })
-                .eq('id', image.id);
-
-            if (error) throw error;
-            toast.success(`Slide ${image.is_active ? 'deactivated' : 'activated'}!`);
-            fetchHeroImages();
-        } catch (error) {
-            toast.error('Failed to update status');
-        }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!formData.image_url) {
-            toast.error('Please upload an image first');
+    const handleSave = async () => {
+        if (!asset.image_url) {
+            toast.error('Please upload an image first.');
             return;
         }
-
-        setSubmitting(true);
+        setSaving(true);
         try {
-            if (editingImage) {
+            const { id, ...payload } = asset as any;
+            if (id) {
+                // Update existing record
                 const { error } = await supabase
-                    .from('hero_images')
-                    .update(formData)
-                    .eq('id', editingImage.id);
+                    .from('site_assets')
+                    .update({ ...payload })
+                    .eq('id', id);
                 if (error) throw error;
-                toast.success('Hero slide updated successfully!');
             } else {
-                const { error } = await supabase
-                    .from('hero_images')
-                    .insert([formData]);
+                // Insert new record
+                const { data, error } = await supabase
+                    .from('site_assets')
+                    .insert([{ ...payload }])
+                    .select()
+                    .single();
                 if (error) throw error;
-                toast.success('Hero slide added successfully!');
+                if (data) setAsset(data as HeroAsset);
             }
-
-            fetchHeroImages();
-            setFormData({
-                image_url: '',
-                alt_text: '',
-                title: '',
-                subtitle: '',
-                cta_text: '',
-                cta_link: '',
-                display_order: images.length,
-                is_active: true
-            });
-            setEditingImage(null);
-            setShowForm(false);
+            toast.success('Hero section saved!');
+            fetchHeroAsset();
         } catch (error: any) {
-            console.error('Error saving hero image:', error);
-            toast.error(error.message || 'Failed to save slide');
+            toast.error(error.message || 'Save failed.');
         } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const deleteImage = async (id: string) => {
-        if (!window.confirm('Are you sure you want to delete this hero slide?')) return;
-
-        try {
-            const { error } = await supabase
-                .from('hero_images')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-            toast.success('Hero slide deleted successfully!');
-            fetchHeroImages();
-        } catch (error) {
-            console.error('Error deleting hero image:', error);
-            toast.error('Failed to delete slide');
+            setSaving(false);
         }
     };
 
@@ -191,243 +125,152 @@ export default function HeroImagesPage() {
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px]">
                 <Loader2 className="w-12 h-12 text-gold-500 animate-spin mb-4" />
-                <p className="text-gray-500 font-medium">Loading hero gallery...</p>
+                <p className="text-gray-400 font-bold tracking-widest uppercase text-xs">Loading Hero Editor...</p>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-serif font-bold text-gray-900">Hero Slideshow</h1>
-                    <p className="text-gray-600 mt-1">Manage the high-impact visual sliders for your store entrance.</p>
-                </div>
-                <button
-                    onClick={() => {
-                        setEditingImage(null);
-                        setFormData({
-                            image_url: '',
-                            alt_text: '',
-                            title: '',
-                            subtitle: '',
-                            cta_text: '',
-                            cta_link: '',
-                            display_order: images.length,
-                            is_active: true
-                        });
-                        setShowForm(true);
-                    }}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-lg transition-colors shadow-sm font-medium"
-                >
-                    <Plus className="w-5 h-5" />
-                    New Slide
-                </button>
+        <div className="max-w-4xl mx-auto space-y-6">
+            {/* Header */}
+            <div className="bg-white px-8 py-6 rounded-2xl shadow-sm border border-gray-100">
+                <h1 className="text-2xl font-serif font-black text-gray-900">Hero Section</h1>
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">
+                    Main homepage hero image & text
+                </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {images.length === 0 ? (
-                    <div className="col-span-full py-24 text-center bg-white rounded-xl border-2 border-dashed border-gray-200">
-                        <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <h3 className="text-xl font-medium text-gray-900">Your gallery is empty</h3>
-                        <p className="text-gray-500 mt-2">Add stunning hero images to wow your visitors.</p>
-                        <button
-                            onClick={() => setShowForm(true)}
-                            className="mt-6 text-gold-600 font-semibold hover:text-gold-700 underline flex items-center gap-2 mx-auto"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Add your first slide
-                        </button>
-                    </div>
-                ) : (
-                    images.map((image) => (
-                        <div key={image.id} className={`bg-white rounded-xl shadow-sm border overflow-hidden group hover:shadow-md transition-all ${!image.is_active ? 'opacity-75 grayscale-[0.5]' : ''}`}>
-                            <div className="relative aspect-[16/9] overflow-hidden bg-gray-100">
-                                <img
-                                    src={image.image_url}
-                                    alt={image.alt_text}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                {/* Image Upload */}
+                <div className="p-6 border-b border-gray-50">
+                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-3">
+                        Hero Image
+                    </label>
+
+                    {asset.image_url ? (
+                        <div className="relative aspect-[16/7] rounded-xl overflow-hidden group border border-gray-100">
+                            <img
+                                src={asset.image_url}
+                                alt="Hero Preview"
+                                className="w-full h-full object-cover"
+                            />
+                            {/* Overlay: change image */}
+                            <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                                <span className="bg-white/90 text-gray-900 text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-full shadow-xl hover:bg-gold-500 hover:text-white transition-all">
+                                    {uploading ? 'Uploading...' : 'Change Image'}
+                                </span>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handleFileUpload}
+                                    disabled={uploading}
                                 />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                    <button
-                                        onClick={() => handleEdit(image)}
-                                        className="p-2.5 bg-white text-gray-800 rounded-full hover:bg-gold-500 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300"
-                                    >
-                                        <Settings2 className="w-5 h-5" />
-                                    </button>
-                                    <button
-                                        onClick={() => toggleActive(image)}
-                                        className={`p-2.5 bg-white rounded-full transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 delay-75 ${image.is_active ? 'text-gray-800 hover:bg-gray-800 hover:text-white' : 'text-gold-500 hover:bg-gold-500 hover:text-white'}`}
-                                    >
-                                        {image.is_active ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                                    </button>
-                                    <button
-                                        onClick={() => deleteImage(image.id)}
-                                        className="p-2.5 bg-white text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0 duration-300 delay-150"
-                                    >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
+                            </label>
+                            {uploading && (
+                                <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                    <Loader2 className="w-10 h-10 text-gold-400 animate-spin" />
                                 </div>
-                                <div className="absolute top-3 left-3 flex gap-2">
-                                    <span className={`px-2 py-1 text-[10px] font-bold rounded shadow-sm ${image.is_active ? 'bg-green-500 text-white' : 'bg-gray-500 text-white'}`}>
-                                        {image.is_active ? 'ACTIVE' : 'INACTIVE'}
-                                    </span>
-                                    <span className="px-2 py-1 bg-black/60 text-white text-[10px] font-bold rounded shadow-sm">
-                                        ORDER: {image.display_order}
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="p-4">
-                                <h3 className="font-bold text-gray-900 truncate">{image.title || 'Untitled Slide'}</h3>
-                                <p className="text-sm text-gray-500 line-clamp-1 mt-1">{image.subtitle || 'No subtitle'}</p>
-                            </div>
+                            )}
                         </div>
-                    ))
-                )}
-            </div>
+                    ) : (
+                        <label className="flex flex-col items-center justify-center aspect-[16/7] border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gold-400 hover:bg-gold-50/50 transition-all group">
+                            {uploading ? (
+                                <Loader2 className="w-12 h-12 text-gold-500 animate-spin mb-3" />
+                            ) : (
+                                <Upload className="w-12 h-12 text-gray-300 mb-3 group-hover:text-gold-400 transition-colors" />
+                            )}
+                            <p className="text-sm font-bold text-gray-400 group-hover:text-gold-600 transition-colors">
+                                {uploading ? 'Uploading...' : 'Click to upload hero image'}
+                            </p>
+                            <p className="text-xs text-gray-300 mt-1">Recommended: 1920×1080 (JPG, PNG, WebP)</p>
+                            <input
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleFileUpload}
+                                disabled={uploading}
+                            />
+                        </label>
+                    )}
+                </div>
 
-            {/* Slide Modal */}
-            {showForm && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
-                        <div className="bg-gold-500 px-6 py-4 flex items-center justify-between">
-                            <h2 className="text-xl font-serif font-bold text-white">
-                                {editingImage ? 'Modify Hero Slide' : 'Design New Hero Slide'}
-                            </h2>
-                            <button
-                                onClick={() => setShowForm(false)}
-                                className="text-white/80 hover:text-white transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
+                {/* Text Fields */}
+                <div className="p-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">
+                                Main Title <span className="text-gray-300">(use comma to split into two lines)</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={asset.title}
+                                onChange={e => setAsset(prev => ({ ...prev, title: e.target.value }))}
+                                className="w-full text-sm font-bold bg-gray-50 px-4 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-gold-500/30 border border-transparent focus:border-gold-100 transition-all font-serif"
+                                placeholder="Island Elegance, Everyday Style"
+                            />
                         </div>
+                        <div className="space-y-1">
+                            <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">
+                                Top Label / Subtitle
+                            </label>
+                            <input
+                                type="text"
+                                value={asset.subtitle}
+                                onChange={e => setAsset(prev => ({ ...prev, subtitle: e.target.value }))}
+                                className="w-full text-sm font-bold bg-gray-50 px-4 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-gold-500/30 border border-transparent focus:border-gold-100 transition-all"
+                                placeholder="Sri Lankan Heritage 2026"
+                            />
+                        </div>
+                    </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
-                            {/* Image Upload Area */}
-                            <div className="space-y-2">
-                                <label className="block text-sm font-semibold text-gray-700">Slide Visual *</label>
-                                {formData.image_url ? (
-                                    <div className="relative aspect-[21/9] rounded-xl overflow-hidden border-2 border-gray-100 shadow-inner group">
-                                        <img src={formData.image_url} alt="Hero preview" className="w-full h-full object-cover" />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <label className="cursor-pointer bg-white text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gold-500 hover:text-white transition-colors">
-                                                Change Image
-                                                <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
-                                            </label>
-                                        </div>
-                                        {uploading && (
-                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                                <Loader2 className="w-8 h-8 text-gold-500 animate-spin" />
-                                            </div>
-                                        )}
-                                    </div>
-                                ) : (
-                                    <label className="flex flex-col items-center justify-center aspect-[21/9] border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-gold-500 hover:bg-gold-50 transition-all">
-                                        <div className="flex flex-col items-center">
-                                            {uploading ? (
-                                                <Loader2 className="w-10 h-10 text-gold-500 animate-spin" />
-                                            ) : (
-                                                <Upload className="w-10 h-10 text-gray-400" />
-                                            )}
-                                            <p className="mt-3 text-sm font-medium text-gray-600">
-                                                {uploading ? 'Processing Visual...' : 'Click to upload hero image'}
-                                            </p>
-                                            <p className="text-xs text-gray-400 mt-1">Recommended: 1920x1080px (PNG, JPG)</p>
-                                        </div>
-                                        <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={uploading} />
-                                    </label>
-                                )}
-                            </div>
-
-                            {/* Content Fields */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Main Title</label>
-                                    <input
-                                        type="text"
-                                        value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none"
-                                        placeholder="Epic Collection 2024"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Subtitle / Caption</label>
-                                    <input
-                                        type="text"
-                                        value={formData.subtitle}
-                                        onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none"
-                                        placeholder="Experience Premium Cotton"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Button Text</label>
-                                    <input
-                                        type="text"
-                                        value={formData.cta_text}
-                                        onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none"
-                                        placeholder="Shop Now"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Link (URL)</label>
-                                    <input
-                                        type="text"
-                                        value={formData.cta_link}
-                                        onChange={(e) => setFormData({ ...formData, cta_link: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none"
-                                        placeholder="/collections/new-arrivals"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Display Order</label>
-                                    <input
-                                        type="number"
-                                        value={formData.display_order}
-                                        onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gold-500 outline-none"
-                                    />
-                                </div>
-                                <div className="flex items-end pb-1.5">
-                                    <label className="flex items-center gap-3 cursor-pointer group">
-                                        <div className="relative">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.is_active}
-                                                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                                                className="sr-only"
-                                            />
-                                            <div className={`w-12 h-6 rounded-full transition-colors ${formData.is_active ? 'bg-gold-500' : 'bg-gray-200'}`}></div>
-                                            <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${formData.is_active ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                                        </div>
-                                        <span className="text-sm font-semibold text-gray-700">Slide is Visible</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4 pt-6 border-t border-gray-100">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowForm(false)}
-                                    className="flex-1 px-6 py-3 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-colors font-bold"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={submitting || uploading}
-                                    className="flex-[2] px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-xl transition-all font-bold shadow-lg shadow-gold-200 flex items-center justify-center gap-2 disabled:bg-gold-300 disabled:shadow-none"
-                                >
-                                    {submitting && <Loader2 className="w-5 h-5 animate-spin" />}
-                                    {submitting ? 'Saving Slide...' : (editingImage ? 'Update Gallery Slide' : 'Publish to Gallery')}
-                                </button>
-                            </div>
-                        </form>
+                    <div className="space-y-1">
+                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest block">
+                            Description / Body Text
+                        </label>
+                        <textarea
+                            value={asset.description}
+                            onChange={e => setAsset(prev => ({ ...prev, description: e.target.value }))}
+                            rows={3}
+                            className="w-full text-sm font-medium bg-gray-50 px-4 py-2.5 rounded-lg outline-none focus:ring-2 focus:ring-gold-500/30 border border-transparent focus:border-gold-100 transition-all"
+                            placeholder="Discover the best cloths, meticulously crafted..."
+                        />
                     </div>
                 </div>
-            )}
+
+                {/* Footer: Save */}
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${asset.id ? 'bg-green-400' : 'bg-orange-400'}`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                            {asset.id ? 'Record exists in Supabase' : 'No record yet — will create on save'}
+                        </span>
+                    </div>
+                    <button
+                        onClick={handleSave}
+                        disabled={saving || uploading || !asset.image_url}
+                        className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest bg-gray-900 text-white px-8 py-2.5 rounded-lg hover:bg-black transition-all hover:scale-105 active:scale-95 disabled:opacity-30"
+                    >
+                        {saving ? (
+                            <Loader2 size={13} className="animate-spin" />
+                        ) : (
+                            <Check size={13} />
+                        )}
+                        {saving ? 'Saving...' : 'Save Hero Section'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Preview hint */}
+            <div className="text-center">
+                <a
+                    href="/"
+                    target="_blank"
+                    className="text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-gold-500 transition-colors"
+                >
+                    Preview on homepage →
+                </a>
+            </div>
         </div>
     );
 }

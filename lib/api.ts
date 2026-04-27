@@ -650,12 +650,18 @@ export async function getSiteAssets(section_key?: string) {
         console.error('Error fetching site assets:', error);
         return [];
     }
-    // Filter out assets with invalid URLs (like placeholders) to prevent Next.js Image crash
-    return (data || []).filter((a: any) => 
-        a.image_url && 
-        (a.image_url.startsWith('http') || a.image_url.startsWith('/')) &&
-        !a.image_url.includes('IMAGE_LINK_HERE')
-    ) as SiteAsset[];
+    // Filter out assets with invalid URLs:
+    // - placeholders like IMAGE_LINK_HERE
+    // - URLs from the old/wrong Cloudinary account (drre6unbw) that return 404
+    const VALID_CLOUD = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'dnfbik3if';
+    return (data || []).filter((a: any) => {
+        if (!a.image_url) return false;
+        if (!a.image_url.startsWith('http') && !a.image_url.startsWith('/')) return false;
+        if (a.image_url.includes('IMAGE_LINK_HERE')) return false;
+        // Reject any Cloudinary URL that doesn't belong to our own cloud
+        if (a.image_url.includes('res.cloudinary.com') && !a.image_url.includes(VALID_CLOUD)) return false;
+        return true;
+    }) as SiteAsset[];
 }
 
 // Helper to map DB response to UI Product interface
